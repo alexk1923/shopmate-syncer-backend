@@ -1,2 +1,2 @@
-# supermate-backend
+# shopmate-syncer backend
 Bachelor Final Project Backend
