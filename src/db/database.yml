@@ -1,0 +1,18 @@
+# Use postgres/example user/password credentials
+version: "3.9"
+
+services:
+  shopmate-db:
+    image: postgres
+    restart: always
+    # set shared memory limit when using docker-compose
+    # shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: shopmate-pass
+      POSTGRES_USER: shopmate-user
+      POSTGRES_DB: shopmate-db
+    ports:
+      - 5432:5432

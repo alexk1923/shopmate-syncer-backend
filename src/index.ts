@@ -7,6 +7,7 @@ const app = express();
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { env } from "process";
+import connectToDatabase from "./db/dbConfig.js";
 
 app.use("/api/", usersRoutes);
 
@@ -27,5 +28,6 @@ const port = env.PORT || 3000;
 app.listen(port, () => {  
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
     console.log(`Server started on port ${port}.`); 
+    connectToDatabase();
 });
 

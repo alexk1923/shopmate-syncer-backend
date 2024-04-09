@@ -3,10 +3,10 @@ const router = express.Router();
 import { auth } from "../middleware/auth.js"
 import { createUser, getUser, updateUser, deleteUser } from "../controllers/userController.js";
 
-router.get("/user/:userId", auth, getUser);
-router.get("/user/:userId", auth, createUser);
-router.put("/user/:userId", auth, updateUser);
-router.delete("/user/:userId", auth, deleteUser);
+router.get("/user/:userId", getUser);
+router.get("/user/:userId",createUser);
+router.put("/user/:userId", updateUser);
+router.delete("/user/:userId", deleteUser);
 
 
 export default router;
