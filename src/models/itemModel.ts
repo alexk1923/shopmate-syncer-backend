@@ -3,6 +3,7 @@ import GenericModel from "./genericModel.js";
 import User from "./userModel.js";
 import Store from "./storeModel.js";
 import Barcode from "./barCodeModel.js";
+import Inventory from "./inventoryModel.js";
 
 @Table({
   tableName: "item",
@@ -27,8 +28,17 @@ export default class Item extends GenericModel {
   })
   storeName?: String;
 
+  @ForeignKey(() => Store)
+  storeId!: number;
   @BelongsTo(() => Store)
   store: Store = {} as Store
+
+
+  @ForeignKey(() => Inventory)
+  inventoryId!: number;
+  @BelongsTo(() => Inventory)
+  inventory: Inventory = {} as Inventory
+
 
   @Column({
     type: DataType.STRING(255),
@@ -36,13 +46,10 @@ export default class Item extends GenericModel {
   })
   barCode?: String;
 
-  
+  @ForeignKey(() => User)
+  boughtById!: number;
 
-
-  @BelongsTo(() => User, {
-    foreignKey: 'boughtBy',
-    as: 'boughtBy'
-  })
+  @BelongsTo(() => User)
   boughtBy: User = {} as User;
 
   @HasOne(() => Barcode)

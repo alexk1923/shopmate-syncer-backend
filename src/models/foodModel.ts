@@ -1,18 +1,16 @@
-import { Column, DataType, HasMany } from "sequelize-typescript";
+import { Column, DataType, HasMany, Table } from "sequelize-typescript";
 import Item from "./itemModel.js";
 import FoodType from "./foodTagModel.js";
 
+@Table({
+    tableName: "food",
+  })
 export default class Food extends Item {
     @Column({
         type: DataType.DATE,
         field: "expiry_date"
       })
       expiryDate?: Date;
-
-    @Column({
-        type: DataType.STRING(255),
-        field: "food_type"
-    })
 
     @HasMany(() => FoodType)
     foodType: FoodType[] = [];

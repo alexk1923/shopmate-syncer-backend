@@ -3,7 +3,7 @@ import GenericModel from "./genericModel.js";
 import User from "./userModel.js";
 
 @Table({
-  tableName: "house_table",
+  tableName: "house",
 })
 export default class House extends GenericModel {
 

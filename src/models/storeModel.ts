@@ -10,12 +10,12 @@ export default class Store extends GenericModel {
     type: DataType.STRING(255),
     field: "name"
   })
-  name?: String;
+  name?: string;
 
   @Column({
     type: DataType.INTEGER,
     field: "address"
   })
-  address?: String;
+  address?: string;
 
 }
