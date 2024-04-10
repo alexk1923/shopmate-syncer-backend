@@ -1,7 +1,8 @@
-import { Model, Table, Column, DataType, BelongsTo, ForeignKey } from "sequelize-typescript";
+import { Model, Table, Column, DataType, BelongsTo, ForeignKey, HasOne } from "sequelize-typescript";
 import GenericModel from "./genericModel.js";
 import User from "./userModel.js";
 import Store from "./storeModel.js";
+import Barcode from "./barCodeModel.js";
 
 @Table({
   tableName: "item",
@@ -26,26 +27,25 @@ export default class Item extends GenericModel {
   })
   storeName?: String;
 
+  @BelongsTo(() => Store)
+  store: Store = {} as Store
+
   @Column({
     type: DataType.STRING(255),
     field: "bar_code"
   })
   barCode?: String;
 
-  @BelongsTo(() => Store)
-  store: Store = {} as Store
+  
 
-  @Column({
-    type: DataType.DATE,
-    field: "expiry_date"
+
+  @BelongsTo(() => User, {
+    foreignKey: 'boughtBy',
+    as: 'boughtBy'
   })
-  expiryDate?: Date;
+  boughtBy: User = {} as User;
 
-  @ForeignKey(() => User)
-  @Column
-  boughtBy: {username: String, dateBought: Date} = {} as {username: String, dateBought: Date};
-
-  @BelongsTo(() => User)
-  user: User = {} as User;
+  @HasOne(() => Barcode)
+  barcode: Barcode = {} as Barcode;
 
 }
