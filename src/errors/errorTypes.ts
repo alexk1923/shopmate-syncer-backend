@@ -1,22 +1,15 @@
-class ResourceAlreadyExists extends Error {
-    statusCode: number;
-    
-    constructor(message: string) {
-      super(message);
-      this.name = "ResourceAlreadyExists";
-      this.statusCode = 409;
-    }
-  }
-  
-  class BadRequestException extends Error {
+import { getReasonPhrase } from "http-status-codes";
+
+  class CustomError extends Error {
     statusCode: number;
 
-    constructor(message: string) {
+    constructor(message: string, statusCode: number) {
       super(message);
-      this.name = "BadRequestException";
-      this.statusCode = 400;
+      this.name = getReasonPhrase(statusCode);
+      this.statusCode = statusCode
     }
+
   }
 
-  export {ResourceAlreadyExists, BadRequestException}
+  export {CustomError}
   
