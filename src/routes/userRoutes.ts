@@ -1,20 +1,19 @@
 import express from 'express';
 const router = express.Router();
-import { auth } from "../middleware/auth.js"
 import { register, getUser, updateUser, deleteUser } from "../controllers/userController.js";
 
 /**
  * @swagger
- * /api/user/{userId}:
+ * /api/user/{id}:
  *   get:
  *     summary: Returns the user
  *     parameters:
  *        - in: path
- *          name: userId
+ *          name: id
  *          schema:
  *              type: number
  *              required: true
- *          description: userId to find the user
+ *          description: id to find the user
  *     responses:
  *       200:
  *         description: Returns the user
@@ -40,7 +39,7 @@ import { register, getUser, updateUser, deleteUser } from "../controllers/userCo
  *       500:
  *          description: Server error
  */
-router.get("/user/:userId", getUser);
+router.get("/user/:id", getUser);
 
 /**
  * @swagger
@@ -66,7 +65,7 @@ router.get("/user/:userId", getUser);
  *               lastName:
  *                 type: string
  *                 description: The user's last name
- *               birthDay:
+ *               birthday:
  *                 type: string
  *                 format: date
  *                 description: The user's birth date
@@ -85,12 +84,12 @@ router.post("/user", register);
 
 /**
  * @swagger
- * /user/{userId}:
+ * /api/user/{id}:
  *   put:
  *     summary: Updates an existing user
  *     parameters:
  *       - in: path
- *         name: userId
+ *         name: id
  *         schema:
  *           type: number
  *         required: true
@@ -130,16 +129,16 @@ router.post("/user", register);
  *       500:
  *         description: Server error
  */
-router.put("/user/:userId", updateUser);
+router.put("/user/:id", updateUser);
 
 /**
  * @swagger
- * /user/{userId}:
+ * /api/user/{id}:
  *   delete:
  *     summary: Deletes a user
  *     parameters:
  *       - in: path
- *         name: userId
+ *         name: id
  *         schema:
  *           type: number
  *         required: true
@@ -152,7 +151,7 @@ router.put("/user/:userId", updateUser);
  *       500:
  *         description: Server error
  */
-router.delete("/user/:userId", deleteUser);
+router.delete("/user/:id", deleteUser);
 
 
 

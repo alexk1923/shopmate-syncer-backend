@@ -1,7 +1,14 @@
 import { Sequelize } from "sequelize";
 import User from "../models/userModel.js"
 import bcrypt from "bcrypt"
-import { ResourceAlreadyExists } from "../errors/errorTypes.js";
+import { CustomError } from "../errors/errorTypes.js";
+import { StatusCodes } from "http-status-codes";
+
+type UserUpdate = {
+    firstName?: string;
+    lastName?: string;
+    birthday: string;
+}
 
 const userService = {
     async createUser(userRegisterData: User) {
@@ -14,17 +21,20 @@ const userService = {
             console.log(existingUser);
             
             if(existingUser.getDataValue('username') === userRegisterData.username) {
-                throw new ResourceAlreadyExists("There is already an account using the same username");
+                throw new CustomError("There is already an account using the same username", StatusCodes.CONFLICT);
             } else if(existingUser.getDataValue('email') === userRegisterData.email) {
-                throw new ResourceAlreadyExists("There is already an account using the same email address");
+                throw new CustomError("There is already an account using the same email address", StatusCodes.CONFLICT);
             } else {
-                throw new ResourceAlreadyExists("Duplicate data for unique field");
+                throw new CustomError("Duplicate data for unique field", StatusCodes.CONFLICT);
             }
         }
 
         const saltRounds = 10;
         const encryptedPass = await bcrypt.hash(password, saltRounds);
-        // store user and password in db
+        console.log("the birthday is");
+        console.log(birthday);
+        
+        // Store user and password in db
         const newUser = new User({email, username, firstName, lastName, birthday, password: encryptedPass});
 
         console.log("new user is");
@@ -35,12 +45,31 @@ const userService = {
         return newUser;
     },
 
-    updateUser() {
-
+    async getUser(id: number) {
+        const user = await User.findByPk(id);
+        console.log("get user");
+        console.log(user);
+        
+        if(!user) {
+            throw new CustomError("User not found", StatusCodes.NOT_FOUND);
+        }
+        return user;
     },
 
-    deleteUser() {
+    async updateUser(userUpdate: UserUpdate, id: number) {
+        const {firstName, lastName, birthday} = userUpdate;
+        const updatedUser = await User.update({firstName, lastName, birthday}, {where: {id}});
+        if(!updatedUser) {
+            throw new CustomError("User not found", StatusCodes.NOT_FOUND);
+        }
+        return updatedUser;
+    },
 
+    async deleteUser(id: number) {
+        console.log("my id is "+ id);
+        
+        await User.destroy({where: {id}});
+        return;
     }
 }
 
