@@ -1,4 +1,4 @@
-import { Model, Table, Column, DataType, BelongsTo, ForeignKey } from "sequelize-typescript";
+import { Model, Table, Column, DataType, BelongsTo, ForeignKey, Unique } from "sequelize-typescript";
 import GenericModel from "./genericModel.js";
 import House from "./houseModel.js";
 
@@ -7,34 +7,52 @@ import House from "./houseModel.js";
 })
 export default class User extends GenericModel {
 
+  @Unique
   @Column({
     type: DataType.STRING(255),
-    field: "title"
+    field: "email",
   })
-  username?: string;
+  
+  email!: string;
+
+  @Unique
+  @Column({
+    type: DataType.STRING(255),
+    field: "username"
+  })
+  
+  username!: string;
+
+
+  @Column({type: DataType.STRING(255)})
+  password!: string;
+  
 
   @Column({
     type: DataType.STRING(255),
     field: "first_name"
   })
-  firstName?: string;
+  firstName!: string;
 
   @Column({
     type: DataType.STRING(255),
     field: "last_name"
   })
-  lastName?: string;
+  lastName!: string;
 
   @Column({
     type: DataType.DATE,
     field: "birthday"
   })
-  birthday?: Date;
+  birthday!: Date;
 
   @ForeignKey(() => House)
-  houseId!: Number;
+  houseId?: Number | null;
+
   @BelongsTo(() => House)
   house: House = {} as House;
+
+
 
 }
 

@@ -1,11 +1,11 @@
 import express from 'express';
 const router = express.Router();
 import { auth } from "../middleware/auth.js"
-import { createUser, getUser, updateUser, deleteUser } from "../controllers/userController.js";
+import { register, getUser, updateUser, deleteUser } from "../controllers/userController.js";
 
 /**
  * @swagger
- * /api/user/:userId:
+ * /api/user/{userId}:
  *   get:
  *     summary: Returns the user
  *     parameters:
@@ -44,7 +44,7 @@ router.get("/user/:userId", getUser);
 
 /**
  * @swagger
- * /user:
+ * /api/user:
  *   post:
  *     summary: Creates a new user
  *     requestBody:
@@ -54,13 +54,23 @@ router.get("/user/:userId", getUser);
  *           schema:
  *             type: object
  *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email
  *               username:
  *                 type: string
- *                 description: The user's username
+ *                 description: Desired username
  *               firstName:
  *                 type: string
  *                 description: The user's first name
  *               lastName:
+ *                 type: string
+ *                 description: The user's last name
+ *               birthDay:
+ *                 type: string
+ *                 format: date
+ *                 description: The user's birth date
+ *               password:
  *                 type: string
  *                 description: The user's last name
  *     responses:
@@ -71,7 +81,7 @@ router.get("/user/:userId", getUser);
  *       500:
  *         description: Server error
  */
-router.post("/user", createUser);
+router.post("/user", register);
 
 /**
  * @swagger
@@ -92,13 +102,22 @@ router.post("/user", createUser);
  *           schema:
  *             type: object
  *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email
  *               username:
  *                 type: string
- *                 description: The user's username
+ *                 description: Desired username
  *               firstName:
  *                 type: string
  *                 description: The user's first name
  *               lastName:
+ *                 type: string
+ *                 description: The user's last name
+ *               birthDay:
+ *                 type: string
+ *                 description: The user's birth date
+ *               password:
  *                 type: string
  *                 description: The user's last name
  *     responses:

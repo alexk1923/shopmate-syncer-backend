@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import bcrypt from "bcrypt"
+
 import { Request, Response } from "express";
 
 const login = async (req: Request, res: Response) => {
@@ -34,26 +34,7 @@ const login = async (req: Request, res: Response) => {
 }
 
 const register = async (req: Request, res: Response) => {
-    try {
-        const { username, email, password } = req.body;
-        // Find if there is a user with the same username or email
 
-        // if (existingUser) {
-        //     return res.status(409).send({ err: "There is already an account using this email address." });
-        // }
-        const saltRounds = 10;
-        const encryptedPass = await bcrypt.hash(password, saltRounds);
-        // store user and password in db
-
-
-        // Create new user and return
-
-        
-
-    } catch (err) {
-        console.log(err);
-        res.status(400).send(err);
-    }
 }
 
 

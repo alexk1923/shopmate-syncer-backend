@@ -1,5 +1,8 @@
-import {Request, Response} from 'express'
+import {NextFunction, Request, Response} from 'express'
 import User from "../models/userModel.js"
+import bcrypt from "bcrypt"
+import { Sequelize } from 'sequelize-typescript';
+import userService from '../services/userService.js';
 
 async function getUser(req: Request, res: Response) {
     console.log(req.query);
@@ -7,7 +10,7 @@ async function getUser(req: Request, res: Response) {
 
     
     if(req.params.userId) {
-        const user = User.findByPk(Number(req.query.id));
+        const user = await User.findByPk(Number(req.params.userId));
         if(user) {
             res.status(200).json(user).send();
         } else {
@@ -20,8 +23,27 @@ async function getUser(req: Request, res: Response) {
 
 }
 
-async function createUser(req: Request, res: Response) {
+async function register(req: Request, res: Response, next: NextFunction) {
+    try {
+        const userRegisterData = new User({
+            username: req.body.username,
+            email: req.body.email,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            birthday: req.body.birthday,
+            password: req.body.password
+        }
+        );
 
+        const user =  await userService.createUser(userRegisterData);
+
+        res.status(200).send(user);
+        
+    } catch (err) {
+        console.log(err);
+        next(err);
+        // res.status(400).send(err);
+    }
 }
 
 async function updateUser(req: Request, res: Response) {
@@ -38,4 +60,4 @@ async function deleteUser(req: Request, res: Response) {
 }
 
 
-export {createUser, getUser, updateUser, deleteUser}
+export {register, getUser, updateUser, deleteUser}

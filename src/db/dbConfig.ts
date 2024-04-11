@@ -21,7 +21,7 @@ function connectToDatabase() {
     models: [Store, User, House, Inventory, Item, Barcode, Food, FoodType]
   });
 
-  sequelize.sync({alter: true});
+  sequelize.sync({alter: true, force: true});
   
   console.log(process.cwd() + "/src/models");
   

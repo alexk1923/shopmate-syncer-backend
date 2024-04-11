@@ -8,8 +8,14 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { env } from "process";
 import connectToDatabase from "./db/dbConfig.js";
+import bodyParser from 'body-parser'
+import { errorHandler } from "./errors/errorHandler.js";
+
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 app.use("/api/", usersRoutes);
+app.use(errorHandler);
 
 const options = {
     definition: {
