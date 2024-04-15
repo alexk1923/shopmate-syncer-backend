@@ -3,15 +3,12 @@ import User from "../models/userModel.js"
 import bcrypt from "bcrypt"
 import { CustomError } from "../errors/errorTypes.js";
 import { StatusCodes } from "http-status-codes";
+import UserCredential from "../models/userCredentialModel.js";
+import { UserCreation, UserUpdate } from "../types/index.js";
 
-type UserUpdate = {
-    firstName?: string;
-    lastName?: string;
-    birthday: string;
-}
 
 const userService = {
-    async createUser(userRegisterData: User) {
+    async createUser(userRegisterData: UserCreation) {
         // Find if there is a user with the same username or email
         const {username, email, firstName, lastName, birthday, password} = userRegisterData;
         const existingUser = await User.findOne({where: Sequelize.or({username}, {email})});
@@ -29,18 +26,21 @@ const userService = {
             }
         }
 
+        console.log("password is " + password);
+        
         const saltRounds = 10;
         const encryptedPass = await bcrypt.hash(password, saltRounds);
-        console.log("the birthday is");
-        console.log(birthday);
         
         // Store user and password in db
-        const newUser = new User({email, username, firstName, lastName, birthday, password: encryptedPass});
-
+        const newUser = new User({email, username, firstName, lastName, birthday});
+        
         console.log("new user is");
         console.log(newUser);
-
+        
         await newUser.save();
+
+        const newCredentials = new UserCredential({email, username, password: encryptedPass, userId: newUser.getDataValue('id')});
+        await newCredentials.save();
 
         return newUser;
     },

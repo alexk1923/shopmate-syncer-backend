@@ -25,6 +25,16 @@ const options = {
         version: '1.0.0',
       },
     },
+    swaggerOptions: {
+      basicAuth: {
+        name:   'Authorization',
+        schema: {
+          type: 'bearer',
+          in:   'header'
+        },
+        value:  'Bearer <token>'
+      }
+    },
     apis: ['./src/routes/*.ts'], // files containing annotations as above
   };
 

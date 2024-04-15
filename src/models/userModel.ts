@@ -1,6 +1,7 @@
-import { Model, Table, Column, DataType, BelongsTo, ForeignKey, Unique } from "sequelize-typescript";
+import { Model, Table, Column, DataType, BelongsTo, ForeignKey, Unique, HasOne } from "sequelize-typescript";
 import GenericModel from "./genericModel.js";
 import House from "./houseModel.js";
+import UserCredential from "./userCredentialModel.js";
 
 @Table({
   tableName: "user_table",
@@ -20,14 +21,8 @@ export default class User extends GenericModel {
     type: DataType.STRING(255),
     field: "username"
   })
-  
   username!: string;
-
-
-  @Column({type: DataType.STRING(255)})
-  password!: string;
   
-
   @Column({
     type: DataType.STRING(255),
     field: "first_name"
@@ -52,7 +47,8 @@ export default class User extends GenericModel {
   @BelongsTo(() => House)
   house: House = {} as House;
 
-
+  @HasOne(() => UserCredential)
+  userCredential: UserCredential = {} as UserCredential
 
 }
 

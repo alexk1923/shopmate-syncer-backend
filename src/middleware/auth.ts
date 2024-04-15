@@ -1,23 +1,32 @@
 import jwt, { Secret } from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express';
+import { CustomError } from '../errors/errorTypes.js';
+import { StatusCodes } from 'http-status-codes';
 
 
 function auth(req: Request, res: Response, next: NextFunction) {
 
-
-    if(req.headers.authorization) {
-        const token = req.headers["authorization"].split(" ")[1];
+    console.log("here");
+    console.log(req.headers);
+    
+    
+    if(req.headers && req.headers.authorization) {
+        console.log(req.headers.authorization);
+        
+        const token = req.headers.authorization.split(" ")[1];
         if (!token) {
-            return res.status(403).json({ err: "Token required" });
+            throw new CustomError("No token provided.", StatusCodes.UNAUTHORIZED);
         }
     
         try {
-            const decoded = jwt.verify(token, process.env.TOKEN_KEY as Secret);
+            jwt.verify(token, process.env.TOKEN_KEY as Secret);
         } catch (err) {
-            return res.status(401).send({ err: "Invalid token" });
+            throw new CustomError("Invalid or expired token.", StatusCodes.UNAUTHORIZED);
         }
     
         return next();
+    } else {
+        throw new CustomError("No token provided.", StatusCodes.UNAUTHORIZED);
     }
 
    

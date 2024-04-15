@@ -5,8 +5,11 @@ import { StatusCodes, getReasonPhrase } from "http-status-codes";
 
 function errorHandler(err: CustomError | Error, req: Request, res: Response, next: NextFunction) {
     if(err instanceof CustomError) {
-      return res.status(err.statusCode).send({ errMessage: err.message, errType: getReasonPhrase(StatusCodes.CONFLICT)});
+      return res.status(err.statusCode).send({ errorMessage: err.message, errorType: getReasonPhrase(err.statusCode)});
     }
+
+    console.log(err);
+    
 
     return  res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(
       { 

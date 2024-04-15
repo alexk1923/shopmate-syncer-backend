@@ -8,6 +8,7 @@ import FoodType from '../models/foodTagModel.js';
 import User from '../models/userModel.js';
 import House from '../models/houseModel.js';
 import Item from '../models/itemModel.js';
+import UserCredential from '../models/userCredentialModel.js';
 
 function connectToDatabase() {
 
@@ -18,7 +19,7 @@ function connectToDatabase() {
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     port: Number(process.env.POSTGRES_PORT),
-    models: [Store, User, House, Inventory, Item, Barcode, Food, FoodType]
+    models: [Store, User, House, Inventory, Item, Barcode, Food, FoodType, UserCredential]
   });
 
   sequelize.sync({alter: true, force: true});

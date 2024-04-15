@@ -1,49 +1,83 @@
 import express from 'express';
 const router = express.Router();
-import { register, getUser, updateUser, deleteUser } from "../controllers/userController.js";
+import { getUser, updateUser, deleteUser } from "../controllers/userController.js";
+import { login, register } from '../controllers/authenticationController.js';
+import { auth } from '../middleware/auth.js';
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     UserRegister:
+ *       type: object
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: The user's username
+ *         email:
+ *           type: string
+ *           description: The user's email address
+ *         firstName:
+ *           type: string
+ *           description: The user's first name 
+ *         lastName:
+ *           type: string
+ *           description: The user's last name
+ *         birthday:
+ *           type: string
+ *           format: date
+ *           description: The user's birthday in date format (yyyy-mm-dd)
+ *         password:
+ *           type: string
+ *           description: The user's password
+ *       required:
+ *         - username
+ *         - email
+ *         - firstName
+ *         - lastName
+ *         - password
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
 
 /**
  * @swagger
  * /api/user/{id}:
  *   get:
- *     summary: Returns the user
+ *     tags:
+ *       - User
+ *     summary: Get user by ID
+ *     description: This endpoint retrieves a user by their ID.
+ *     operationId: getUser
  *     parameters:
- *        - in: path
- *          name: id
- *          schema:
- *              type: number
- *              required: true
- *          description: id to find the user
+ *       - name: id
+ *         in: path
+ *         description: ID of the user to retrieve
+ *         required: true
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
  *     responses:
- *       200:
- *         description: Returns the user
+ *       '200':
+ *         description: Successful operation
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                  id:
- *                      type: number
- *                      description: auto generated in database
- *                  username:
- *                      type: string
- *                      description: username for user
- *                  firstName:
- *                      type: string
- *                      description: First name for user
- *                  lastName:
- *                      type: string
- *                      description: Last name for user
- *       404:
- *          description: User not found
- *       500:
- *          description: Server error
+ *               $ref: '#/components/schemas/User'
+ *       '401':
+ *         description: Unauthorized
+ *       '404':
+ *         description: User not found
  */
-router.get("/user/:id", getUser);
+router.get("/user/:id", auth, getUser);
 
 /**
  * @swagger
- * /api/user:
+ * /api/register:
  *   post:
  *     summary: Creates a new user
  *     requestBody:
@@ -51,27 +85,7 @@ router.get("/user/:id", getUser);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 description: User email
- *               username:
- *                 type: string
- *                 description: Desired username
- *               firstName:
- *                 type: string
- *                 description: The user's first name
- *               lastName:
- *                 type: string
- *                 description: The user's last name
- *               birthday:
- *                 type: string
- *                 format: date
- *                 description: The user's birth date
- *               password:
- *                 type: string
- *                 description: The user's last name
+ *             $ref: '#/components/schemas/UserRegister'
  *     responses:
  *       201:
  *         description: User created
@@ -80,7 +94,49 @@ router.get("/user/:id", getUser);
  *       500:
  *         description: Server error
  */
-router.post("/user", register);
+router.post("/register", register);
+
+
+
+/**
+ * @swagger
+ * /api/login:
+ *   post:
+ *     summary: Login with an existing account
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             oneOf:
+ *               - required: [username]
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                     description: The username of the user.
+ *               - required: [email]
+ *                 properties:
+ *                   email:
+ *                     type: string
+ *                     description: The email address of the user.
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 description: The password of the user.
+ *     responses:
+ *       200:
+ *         description: Authenticated
+ *       400:
+ *         description: Invalid input
+ *       500:
+ *         description: Server error
+ */
+
+router.post("/login", login);
+
 
 /**
  * @swagger
@@ -121,15 +177,17 @@ router.post("/user", register);
  *                 description: The user's last name
  *     responses:
  *       200:
- *         description: User updated
- *       400:
- *         description: Invalid input
+ *         description: Successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
  *       500:
  *         description: Server error
  */
-router.put("/user/:id", updateUser);
+router.put("/user/:id", auth, updateUser);
 
 /**
  * @swagger
@@ -151,7 +209,7 @@ router.put("/user/:id", updateUser);
  *       500:
  *         description: Server error
  */
-router.delete("/user/:id", deleteUser);
+router.delete("/user/:id", auth, deleteUser);
 
 
 

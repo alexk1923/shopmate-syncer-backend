@@ -4,10 +4,11 @@ import bcrypt from "bcrypt"
 import { Sequelize } from 'sequelize-typescript';
 import userService from '../services/userService.js';
 import { StatusCodes } from 'http-status-codes';
+import { UserCreation } from '../types/index.js';
 
 async function getUser(req: Request, res: Response, next: NextFunction) {
     try {
-        const {id} = req.params;
+        const {id} = req.params;        
         const foundUser = await userService.getUser(Number(id));
         res.status(StatusCodes.OK).send(foundUser);
     } catch (err) {
@@ -15,25 +16,7 @@ async function getUser(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-async function register(req: Request, res: Response, next: NextFunction) {
-    try {
-        const userRegisterData = new User({
-            username: req.body.username,
-            email: req.body.email,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            birthday: req.body.birthday,
-            password: req.body.password
-        }
-        );
 
-        const user =  await userService.createUser(userRegisterData);
-        res.status(StatusCodes.CREATED).send(user);
-        
-    } catch (err) {
-        next(err);
-    }
-}
 
 async function updateUser(req: Request, res: Response, next: NextFunction) {
     const {firstName, lastName, birthday} = req.body;
@@ -64,4 +47,4 @@ async function deleteUser(req: Request, res: Response, next: NextFunction) {
 }
 
 
-export {register, getUser, updateUser, deleteUser}
+export {getUser, updateUser, deleteUser}
