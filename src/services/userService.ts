@@ -4,11 +4,11 @@ import bcrypt from "bcrypt"
 import { CustomError } from "../errors/errorTypes.js";
 import { StatusCodes } from "http-status-codes";
 import UserCredential from "../models/userCredentialModel.js";
-import { UserCreation, UserUpdate } from "../types/index.js";
+import { UserCreation, UserCreationType, UserUpdate, UserUpdateType } from "../types/index.js";
 
 
 const userService = {
-    async createUser(userRegisterData: UserCreation) {
+    async createUser(userRegisterData: UserCreationType) {
         // Find if there is a user with the same username or email
         const {username, email, firstName, lastName, birthday, password} = userRegisterData;
         const existingUser = await User.findOne({where: Sequelize.or({username}, {email})});
@@ -56,13 +56,21 @@ const userService = {
         return user;
     },
 
-    async updateUser(userUpdate: UserUpdate, id: number) {
+    async updateUser(userUpdate: UserUpdateType, id: number) {
         const {firstName, lastName, birthday} = userUpdate;
-        const updatedUser = await User.update({firstName, lastName, birthday}, {where: {id}});
-        if(!updatedUser) {
+        const updatedUserId = await User.update({firstName, lastName, birthday}, {where: {id}});
+
+        // No rows affected
+        if(updatedUserId[0] === 0) {
             throw new CustomError("User not found", StatusCodes.NOT_FOUND);
         }
-        return updatedUser;
+
+        const newUser = await User.findByPk(id);
+
+        console.log("updatedUser:");
+        console.log(newUser);
+        
+        return newUser;
     },
 
     async deleteUser(id: number) {

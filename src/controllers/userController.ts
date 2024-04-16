@@ -4,7 +4,9 @@ import bcrypt from "bcrypt"
 import { Sequelize } from 'sequelize-typescript';
 import userService from '../services/userService.js';
 import { StatusCodes } from 'http-status-codes';
-import { UserCreation } from '../types/index.js';
+import { UserCreation, UserUpdate } from '../types/index.js';
+import {z} from "zod"
+import { CustomError } from '../errors/errorTypes.js';
 
 async function getUser(req: Request, res: Response, next: NextFunction) {
     try {
@@ -16,16 +18,19 @@ async function getUser(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-
-
 async function updateUser(req: Request, res: Response, next: NextFunction) {
-    const {firstName, lastName, birthday} = req.body;
+    const updateFields =  UserUpdate.safeParse(req.body);
     const {id} = req.params;
-
+    
     try{
-        const updatedUser = await userService.updateUser({firstName, lastName, birthday}, Number(id));
-        console.log(updatedUser);
-        res.status(StatusCodes.OK).send(updatedUser);
+        if(updateFields.success) {
+            const updatedUser = await userService.updateUser(updateFields.data, Number(id));
+            console.log(updatedUser);
+            res.status(StatusCodes.OK).send(updatedUser);
+        } else {
+            throw new CustomError("Invalid body provided. Check API specs.", StatusCodes.BAD_REQUEST);
+        }
+
     } catch(err) {
         next(err);
     }

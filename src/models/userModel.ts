@@ -39,7 +39,7 @@ export default class User extends GenericModel {
     type: DataType.DATE,
     field: "birthday"
   })
-  birthday!: Date;
+  birthday?: Date | null;
 
   @ForeignKey(() => House)
   houseId?: Number | null;

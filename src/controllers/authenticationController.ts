@@ -7,6 +7,10 @@ import bcrypt from "bcrypt"
 import { UserCreation } from "../types/index.js";
 import { StatusCodes } from "http-status-codes";
 import userService from "../services/userService.js";
+import {z} from "zod"
+import { CustomError } from "../errors/errorTypes.js";
+
+
 
 const login = async (req: Request, res: Response) => {
     try {
@@ -50,18 +54,17 @@ const login = async (req: Request, res: Response) => {
 
 async function register(req: Request, res: Response, next: NextFunction) {
     try {
-        const userRegisterData : UserCreation = {
-            username: req.body.username,
-            email: req.body.email,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            birthday: req.body.birthday,
-            password: req.body.password
-        };
+        console.log(req.body.username);
+        
+        const userRegisterData = UserCreation.safeParse(req.body);
 
-        const user =  await userService.createUser(userRegisterData);
-    
-        res.status(StatusCodes.CREATED).send(user);
+        if(userRegisterData.success) {
+            const user =  await userService.createUser(userRegisterData.data);
+            res.status(StatusCodes.CREATED).send(user);
+        } else {
+            console.log(userRegisterData.error.errors);
+            throw new CustomError("Invalid body provided. Check API specs.", StatusCodes.BAD_REQUEST);
+        }
         
     } catch (err) {
         next(err);

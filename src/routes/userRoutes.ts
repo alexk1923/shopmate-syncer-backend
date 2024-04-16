@@ -36,6 +36,64 @@ import { auth } from '../middleware/auth.js';
  *         - firstName
  *         - lastName
  *         - password
+ *     User:
+ *       type: object
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: The user's username
+ *         email:
+ *           type: string
+ *           description: The user's email address
+ *         firstName:
+ *           type: string
+ *           description: The user's first name 
+ *         lastName:
+ *           type: string
+ *           description: The user's last name
+ *         birthday:
+ *           type: string
+ *           format: date
+ *           description: The user's birthday in date format (yyyy-mm-dd)
+ *       required:
+ *         - username
+ *         - email
+ *         - firstName
+ *         - lastName
+ *     UserUpdate:
+ *       type: object
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: The user's username
+ *         email:
+ *           type: string
+ *           description: The user's email address
+ *         firstName:
+ *           type: string
+ *           description: The user's first name 
+ *         lastName:
+ *           type: string
+ *           description: The user's last name
+ *         birthday:
+ *           type: string
+ *           format: date
+ *           description: The user's birthday in date format (yyyy-mm-dd)
+ *     UserLoginAuth:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: number
+ *           description: Unique identifier for user
+ *         username:
+ *           type: string
+ *           description: The user's username
+ *         email:
+ *           type: string
+ *           description: The user's email address
+ *         token:
+ *           type: string
+ *           description: JWT Token user for authentication  
  *   securitySchemes:
  *     bearerAuth:
  *       type: http
@@ -79,6 +137,8 @@ router.get("/user/:id", auth, getUser);
  * @swagger
  * /api/register:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Creates a new user
  *     requestBody:
  *       required: true
@@ -87,8 +147,12 @@ router.get("/user/:id", auth, getUser);
  *           schema:
  *             $ref: '#/components/schemas/UserRegister'
  *     responses:
- *       201:
+ *       200:
  *         description: User created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Invalid input
  *       500:
@@ -102,6 +166,8 @@ router.post("/register", register);
  * @swagger
  * /api/login:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Login with an existing account
  *     requestBody:
  *       required: true
@@ -128,7 +194,11 @@ router.post("/register", register);
  *                 description: The password of the user.
  *     responses:
  *       200:
- *         description: Authenticated
+ *         description: Successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserLoginAuth'   
  *       400:
  *         description: Invalid input
  *       500:
@@ -142,6 +212,8 @@ router.post("/login", login);
  * @swagger
  * /api/user/{id}:
  *   put:
+ *     tags:
+ *       - User
  *     summary: Updates an existing user
  *     parameters:
  *       - in: path
@@ -169,12 +241,11 @@ router.post("/login", login);
  *               lastName:
  *                 type: string
  *                 description: The user's last name
- *               birthDay:
+ *               birthday:
  *                 type: string
  *                 description: The user's birth date
- *               password:
- *                 type: string
- *                 description: The user's last name
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Successful operation
@@ -193,6 +264,8 @@ router.put("/user/:id", auth, updateUser);
  * @swagger
  * /api/user/{id}:
  *   delete:
+ *     tags:
+ *       - User
  *     summary: Deletes a user
  *     parameters:
  *       - in: path
@@ -201,6 +274,8 @@ router.put("/user/:id", auth, updateUser);
  *           type: number
  *         required: true
  *         description: ID of user to delete
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: User deleted
