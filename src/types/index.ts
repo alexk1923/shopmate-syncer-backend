@@ -1,20 +1,71 @@
-import {z} from 'zod'
+import { z } from "zod";
 
+type Paths = {
+	[path: string]: {
+		[method: string]: {
+			tags?: string[];
+			summary?: string;
+			parameters?: {
+				name: string;
+				in: string;
+				required?: boolean;
+				schema: {
+					type: string;
+				};
+			}[];
+			responses: {
+				[response: string]: {
+					description: string;
+				};
+			};
+		};
+	};
+};
 
-export const UserUpdate = z.object({
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    birthday: z.coerce.date().optional(),
-})
-export type UserUpdateType = z.infer<typeof UserUpdate>;
+/* === VALIDATION === */
 
-export const UserCreation = z.object({
-    username: z.string(),
-    email: z.string().email(),
-    firstName: z.string(),
-    lastName: z.string(),
-    birthday: z.coerce.date().optional(),
-    password: z.string().min(6, {message: "Password must be at least 6 characters"})
-  });
+/* ==== USER === */
+const UserUpdate = z.object({
+	firstName: z.string().optional(),
+	lastName: z.string().optional(),
+	birthday: z.coerce.date().optional(),
+});
+type UserUpdateType = z.infer<typeof UserUpdate>;
 
-export type UserCreationType = z.infer<typeof UserCreation>;
+const UserCreation = z.object({
+	username: z.string(),
+	email: z.string().email(),
+	firstName: z.string(),
+	lastName: z.string(),
+	birthday: z.coerce.date().optional(),
+	password: z
+		.string()
+		.min(6, { message: "Password must be at least 6 characters" }),
+});
+
+type UserCreationType = z.infer<typeof UserCreation>;
+
+/* === HOUSE === */
+const HouseCreation = z.object({
+	name: z.string(),
+	defaultMembers: z.array(z.string()).nonempty(),
+});
+
+const HouseUpdate = z.object({
+	name: z.string(),
+});
+
+const HouseAddMember = z.object({
+	userId: z.number(),
+});
+
+export {
+	UserCreation,
+	UserCreationType,
+	UserUpdate,
+	UserUpdateType,
+	HouseCreation,
+	HouseUpdate,
+	HouseAddMember,
+	Paths,
+};

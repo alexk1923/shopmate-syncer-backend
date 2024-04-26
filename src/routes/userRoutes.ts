@@ -1,8 +1,12 @@
-import express from 'express';
+import express from "express";
 const router = express.Router();
-import { getUser, updateUser, deleteUser } from "../controllers/userController.js";
-import { login, register } from '../controllers/authenticationController.js';
-import { auth } from '../middleware/auth.js';
+import {
+	getUser,
+	updateUser,
+	deleteUser,
+} from "../controllers/userController.js";
+import { login, register } from "../controllers/authenticationController.js";
+import { auth } from "../middleware/auth.js";
 
 /**
  * @swagger
@@ -19,7 +23,7 @@ import { auth } from '../middleware/auth.js';
  *           description: The user's email address
  *         firstName:
  *           type: string
- *           description: The user's first name 
+ *           description: The user's first name
  *         lastName:
  *           type: string
  *           description: The user's last name
@@ -47,7 +51,7 @@ import { auth } from '../middleware/auth.js';
  *           description: The user's email address
  *         firstName:
  *           type: string
- *           description: The user's first name 
+ *           description: The user's first name
  *         lastName:
  *           type: string
  *           description: The user's last name
@@ -71,7 +75,7 @@ import { auth } from '../middleware/auth.js';
  *           description: The user's email address
  *         firstName:
  *           type: string
- *           description: The user's first name 
+ *           description: The user's first name
  *         lastName:
  *           type: string
  *           description: The user's last name
@@ -93,7 +97,7 @@ import { auth } from '../middleware/auth.js';
  *           description: The user's email address
  *         token:
  *           type: string
- *           description: JWT Token user for authentication  
+ *           description: JWT Token user for authentication
  *   securitySchemes:
  *     bearerAuth:
  *       type: http
@@ -160,8 +164,6 @@ router.get("/user/:id", auth, getUser);
  */
 router.post("/register", register);
 
-
-
 /**
  * @swagger
  * /api/login:
@@ -198,7 +200,7 @@ router.post("/register", register);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/UserLoginAuth'   
+ *               $ref: '#/components/schemas/UserLoginAuth'
  *       400:
  *         description: Invalid input
  *       500:
@@ -206,7 +208,6 @@ router.post("/register", register);
  */
 
 router.post("/login", login);
-
 
 /**
  * @swagger
@@ -285,7 +286,5 @@ router.put("/user/:id", auth, updateUser);
  *         description: Server error
  */
 router.delete("/user/:id", auth, deleteUser);
-
-
 
 export default router;
