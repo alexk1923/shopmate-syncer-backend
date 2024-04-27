@@ -12,12 +12,15 @@ import connectToDatabase from "./db/dbConfig.js";
 import bodyParser from "body-parser";
 import { errorHandler } from "./errors/errorHandler.js";
 import { houseApi } from "./routes/houseRoutes.js";
+import itemRoutes from "./routes/itemRoutes.js";
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use("/api/", usersRoutes);
 app.use("/api/", houseRoutes);
+app.use("/api/", itemRoutes);
+
 app.use(errorHandler);
 
 const options = {

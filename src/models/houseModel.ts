@@ -5,9 +5,11 @@ import {
 	DataType,
 	HasMany,
 	BeforeDestroy,
+	HasOne,
 } from "sequelize-typescript";
 import GenericModel from "./genericModel.js";
 import User from "./userModel.js";
+import Inventory from "./inventoryModel.js";
 
 export interface IHouse extends House {
 	setMembers: (users: User[]) => Promise<void>;
@@ -25,6 +27,9 @@ export default class House extends GenericModel {
 
 	@HasMany(() => User)
 	members: User[] = [];
+
+	@HasOne(() => Inventory)
+	inventory!: Inventory;
 
 	@BeforeDestroy
 	static async nullifyUsersHouse(instance: House) {
