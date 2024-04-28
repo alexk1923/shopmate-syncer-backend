@@ -14,9 +14,6 @@ import House from "./houseModel.js";
 	tableName: "inventory",
 })
 export default class Inventory extends GenericModel {
-	@HasMany(() => Item)
-	items: Item[] = [];
-
 	@BelongsTo(() => House)
 	house!: House;
 

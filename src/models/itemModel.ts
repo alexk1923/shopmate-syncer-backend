@@ -13,6 +13,7 @@ import User from "./userModel.js";
 import Store from "./storeModel.js";
 import Barcode from "./barCodeModel.js";
 import Inventory from "./inventoryModel.js";
+import House from "./houseModel.js";
 
 @Table({
 	tableName: "item",
@@ -30,35 +31,26 @@ export default class Item extends GenericModel {
 	})
 	quantity?: Number;
 
-	@Column({
-		type: DataType.STRING(255),
-		field: "store",
-	})
-	storeName?: String;
+	@ForeignKey(() => House)
+	houseId!: number;
+	@BelongsTo(() => House)
+	house: House = {} as House;
 
 	@ForeignKey(() => Store)
 	storeId!: number;
 	@BelongsTo(() => Store)
 	store: Store = {} as Store;
 
-	@ForeignKey(() => Inventory)
-	inventoryId!: number;
-	@BelongsTo(() => Inventory)
-	inventory: Inventory = {} as Inventory;
-
 	@Unique
 	@Column({
 		type: DataType.STRING(255),
 		field: "barcode",
 	})
-	barCode?: String;
+	barcode?: String;
 
 	@ForeignKey(() => User)
 	boughtById!: number;
 
 	@BelongsTo(() => User)
 	boughtBy: User = {} as User;
-
-	@HasOne(() => Barcode)
-	barcode: Barcode = {} as Barcode;
 }

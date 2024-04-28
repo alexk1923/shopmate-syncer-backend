@@ -259,7 +259,7 @@ router.post("/login", login);
  *       500:
  *         description: Server error
  */
-router.put("/user/:id", auth, updateUser);
+router.patch("/user/:id", auth, updateUser);
 
 /**
  * @swagger

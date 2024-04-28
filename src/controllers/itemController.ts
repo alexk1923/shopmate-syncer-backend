@@ -1,8 +1,14 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response, query } from "express";
 import Item from "../models/itemModel.js";
 import itemService from "../services/itemService.js";
 import { StatusCodes } from "http-status-codes";
-import { ItemAdd, ItemUpdate, ItemsFilter } from "../types/item.js";
+import {
+	ItemAdd,
+	ItemUpdate,
+	ItemsFilter,
+	ItemsFilterType,
+} from "../types/item.js";
+import { CustomError } from "../errors/errorTypes.js";
 
 async function getItem(req: Request, res: Response, next: NextFunction) {
 	try {
@@ -16,14 +22,24 @@ async function getItem(req: Request, res: Response, next: NextFunction) {
 
 async function getAllItems(req: Request, res: Response, next: NextFunction) {
 	try {
-		const itemsInput = ItemsFilter.safeParse(req.query);
+		let queryParams: ItemsFilterType = {
+			houseId: Number(req.query.houseId),
+		};
+
+		if (req.query.storeId) {
+			queryParams = { ...queryParams, storeId: Number(req.query.storeId) };
+		}
+
+		const itemsInput = ItemsFilter.safeParse(queryParams);
+
 		if (itemsInput.success) {
-			const items = await itemService.getAllItems(
-				Number(itemsInput.data.inventoryId),
-				Number(itemsInput.data.storyId)
-			);
+			const items = await itemService.getAllItems(queryParams);
 			return res.status(StatusCodes.OK).send(items);
 		}
+		throw new CustomError(
+			"Invalid query params provided. Check API specs.",
+			StatusCodes.BAD_REQUEST
+		);
 	} catch (err) {
 		next(err);
 	}
@@ -36,6 +52,10 @@ async function addItem(req: Request, res: Response, next: NextFunction) {
 			const createdItem = await itemService.addItem(itemInput.data);
 			return res.status(StatusCodes.OK).send(createdItem);
 		}
+		throw new CustomError(
+			"Invalid body provided. Check API specs.",
+			StatusCodes.BAD_REQUEST
+		);
 	} catch (err) {
 		next(err);
 	}
@@ -52,6 +72,10 @@ async function updateItem(req: Request, res: Response, next: NextFunction) {
 			);
 			return res.status(StatusCodes.OK).send(updatedItem);
 		}
+		throw new CustomError(
+			"Invalid body provided. Check API specs.",
+			StatusCodes.BAD_REQUEST
+		);
 	} catch (err) {
 		next(err);
 	}

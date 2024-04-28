@@ -78,7 +78,8 @@ const houseService = {
 		}
 
 		await user.update({ houseId });
-		return house;
+		const updatedHouse = await House.findByPk(houseId);
+		return updatedHouse;
 	},
 
 	async removeUserFromHouse(houseId: number, userId: number) {
@@ -93,8 +94,9 @@ const houseService = {
 		}
 
 		await user.update({ houseId: null });
+		const updatedHouse = await House.findByPk(houseId);
 
-		return;
+		return updatedHouse;
 	},
 };
 

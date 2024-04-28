@@ -10,6 +10,7 @@ import {
 import GenericModel from "./genericModel.js";
 import User from "./userModel.js";
 import Inventory from "./inventoryModel.js";
+import Item from "./itemModel.js";
 
 export interface IHouse extends House {
 	setMembers: (users: User[]) => Promise<void>;
@@ -30,6 +31,9 @@ export default class House extends GenericModel {
 
 	@HasOne(() => Inventory)
 	inventory!: Inventory;
+
+	@HasMany(() => Item)
+	items: Item[] = [];
 
 	@BeforeDestroy
 	static async nullifyUsersHouse(instance: House) {

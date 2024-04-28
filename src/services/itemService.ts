@@ -1,10 +1,10 @@
 import { StatusCodes } from "http-status-codes";
 import Item from "../models/itemModel.js";
 import { CustomError } from "../errors/errorTypes.js";
-import Inventory from "../models/inventoryModel.js";
-import { ItemAddType, ItemUpdateType } from "../types/item.js";
+import { ItemAddType, ItemUpdateType, ItemsFilterType } from "../types/item.js";
 import Store from "../models/storeModel.js";
 import User from "../models/userModel.js";
+import House from "../models/houseModel.js";
 
 const itemService = {
 	async getItem(id: number) {
@@ -16,11 +16,13 @@ const itemService = {
 		return item;
 	},
 
-	async getAllItems(inventoryId: number, storeId: number) {
-		const items = await Inventory.findAll({ where: { inventoryId } });
-		if (storeId) {
+	async getAllItems(itemsFilter: ItemsFilterType) {
+		const items = await Item.findAll({
+			where: { houseId: itemsFilter.houseId },
+		});
+		if (itemsFilter.storeId) {
 			const filteredItems = items.map(
-				(item) => item.getDataValue("storeId") === storeId
+				(item) => item.getDataValue("storeId") === itemsFilter.storeId
 			);
 			return filteredItems;
 		}
@@ -62,27 +64,33 @@ const itemService = {
 			throw new CustomError("Item not found", StatusCodes.NOT_FOUND);
 		}
 
-		const existingBarcode = await Item.findOne({
-			where: { barcode: itemUpdate.barcode },
-		});
-		if (!existingBarcode) {
-			throw new CustomError(
-				"An item having this barcode already exists",
-				StatusCodes.CONFLICT
-			);
+		if (itemUpdate.barcode) {
+			const existingBarcode = await Item.findOne({
+				where: { barcode: itemUpdate.barcode },
+			});
+			if (!existingBarcode) {
+				throw new CustomError(
+					"An item having this barcode already exists",
+					StatusCodes.CONFLICT
+				);
+			}
 		}
 
-		const existingStore = await Store.findByPk(itemUpdate.storeId);
-		if (!existingStore) {
-			throw new CustomError("Store not found", StatusCodes.CONFLICT);
+		if (itemUpdate.storeId) {
+			const existingStore = await Store.findByPk(itemUpdate.storeId);
+			if (!existingStore) {
+				throw new CustomError("Store not found", StatusCodes.CONFLICT);
+			}
 		}
 
-		const existingUser = await User.findByPk(itemUpdate.boughtById);
-		if (!existingUser) {
-			throw new CustomError(
-				"Invalid user added as buyer",
-				StatusCodes.NOT_FOUND
-			);
+		if (itemUpdate.boughtById) {
+			const existingUser = await User.findByPk(itemUpdate.boughtById);
+			if (!existingUser) {
+				throw new CustomError(
+					"Invalid user added as buyer",
+					StatusCodes.NOT_FOUND
+				);
+			}
 		}
 
 		await existingItem.update(itemUpdate);

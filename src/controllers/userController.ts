@@ -10,9 +10,6 @@ import { CustomError } from "../errors/errorTypes.js";
 
 async function getUser(req: Request, res: Response, next: NextFunction) {
 	try {
-		console.log("get user body");
-		console.log(req.body);
-
 		const { id } = req.params;
 		const foundUser = await userService.getUser(Number(id));
 		res.status(StatusCodes.OK).send(foundUser);
@@ -31,7 +28,6 @@ async function updateUser(req: Request, res: Response, next: NextFunction) {
 				updateFields.data,
 				Number(id)
 			);
-			console.log(updatedUser);
 			res.status(StatusCodes.OK).send(updatedUser);
 		} else {
 			throw new CustomError(
@@ -46,8 +42,6 @@ async function updateUser(req: Request, res: Response, next: NextFunction) {
 
 async function deleteUser(req: Request, res: Response, next: NextFunction) {
 	const { id } = req.params;
-	console.log("my id is " + id);
-
 	try {
 		await userService.deleteUser(Number(id));
 		res.status(StatusCodes.NO_CONTENT).send();

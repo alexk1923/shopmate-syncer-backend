@@ -56,8 +56,6 @@ const login = async (req: Request, res: Response) => {
 
 async function register(req: Request, res: Response, next: NextFunction) {
 	try {
-		console.log(req.body.username);
-
 		const userRegisterData = UserCreation.safeParse(req.body);
 
 		if (userRegisterData.success) {

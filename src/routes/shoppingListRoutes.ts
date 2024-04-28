@@ -1,12 +1,16 @@
-import express from 'express';
+import express from "express";
 const router = express.Router();
-import { auth } from "../middleware/auth.js"
-import {createShoppingList , updateShoppingList, deleteShoppingList, getShoppingList } from "../controllers/shoppingListController.js";
+import { auth } from "../middleware/auth.js";
+import {
+	createShoppingList,
+	updateShoppingList,
+	deleteShoppingList,
+	getShoppingList,
+} from "../controllers/shoppingListController.js";
 
 router.post("/shoppingList", createShoppingList);
-router.get("/shoppingList/:shoppingListId",  getShoppingList);
-router.put("/shoppingList/:shoppingListId",  updateShoppingList);
-router.delete("/shoppingList/:shoppingListId",  deleteShoppingList);
-
+router.get("/shoppingList/:id", getShoppingList);
+router.patch("/shoppingList/:id", updateShoppingList);
+router.delete("/shoppingList/:id", deleteShoppingList);
 
 export default router;

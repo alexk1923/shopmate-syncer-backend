@@ -1,14 +1,14 @@
 import { z } from "zod";
 
 const ItemsFilter = z.object({
-	inventoryId: z.number(),
-	storyId: z.number().optional(),
+	houseId: z.number(),
+	storeId: z.number().optional(),
 });
 
 const ItemAdd = z.object({
 	name: z.string(),
 	quantity: z.number(),
-	inventoryId: z.number(),
+	houseId: z.number(),
 	storeId: z.number(),
 	boughtById: z.number(),
 	barcode: z.string(),
@@ -24,5 +24,13 @@ const ItemUpdate = z.object({
 
 type ItemAddType = z.infer<typeof ItemAdd>;
 type ItemUpdateType = z.infer<typeof ItemUpdate>;
+type ItemsFilterType = z.infer<typeof ItemsFilter>;
 
-export { ItemsFilter, ItemAdd, ItemUpdate, ItemAddType, ItemUpdateType };
+export {
+	ItemsFilter,
+	ItemAdd,
+	ItemUpdate,
+	ItemAddType,
+	ItemUpdateType,
+	ItemsFilterType,
+};

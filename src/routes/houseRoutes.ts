@@ -16,7 +16,7 @@ router.post("/house/", auth, createHouse);
 router.get("/house/:id", auth, getHouse);
 router.post("/house/:id/members", auth, addUserToHouse);
 router.delete("/house/:id/members/:memberId", auth, removeUserFromHouse);
-router.put("/house/:id", auth, updateHouse);
+router.patch("/house/:id", auth, updateHouse);
 router.delete("/house/:id", auth, deleteHouse);
 
 // Schema
@@ -141,7 +141,7 @@ export const houseApi: Paths = {
 				},
 			},
 		},
-		put: {
+		patch: {
 			tags: ["House"],
 			summary: "Update house",
 			security: [
