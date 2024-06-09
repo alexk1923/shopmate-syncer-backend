@@ -23,6 +23,12 @@ export default class User extends GenericModel {
 	})
 	email!: string;
 
+	@Column({
+		type: DataType.STRING(255),
+		field: "profilePicture",
+	})
+	profilePicture?: string;
+
 	@Unique
 	@Column({
 		type: DataType.STRING(255),

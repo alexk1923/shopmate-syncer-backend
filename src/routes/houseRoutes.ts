@@ -12,12 +12,12 @@ import {
 import { Paths } from "swagger-jsdoc";
 
 // Routes
-router.post("/house/", auth, createHouse);
-router.get("/house/:id", auth, getHouse);
-router.post("/house/:id/members", auth, addUserToHouse);
-router.delete("/house/:id/members/:memberId", auth, removeUserFromHouse);
-router.patch("/house/:id", auth, updateHouse);
-router.delete("/house/:id", auth, deleteHouse);
+router.post("/houses/", auth, createHouse);
+router.get("/houses/:id", auth, getHouse);
+router.post("/houses/:id/members", auth, addUserToHouse);
+router.delete("/houses/:id/members/:memberId", auth, removeUserFromHouse);
+router.patch("/houses/:id", auth, updateHouse);
+router.delete("/houses/:id", auth, deleteHouse);
 
 // Schema
 export const HouseSchema = {

@@ -12,6 +12,11 @@ import {
 } from "../types/index.js";
 
 const userService = {
+	async getUsers() {
+		const users = await User.findAll();
+		return users;
+	},
+
 	async createUser(userRegisterData: UserCreationType) {
 		// Find if there is a user with the same username or email
 		const { username, email, firstName, lastName, birthday, password } =
@@ -74,9 +79,9 @@ const userService = {
 	},
 
 	async updateUser(userUpdate: UserUpdateType, id: number) {
-		const { firstName, lastName, birthday } = userUpdate;
+		const { firstName, lastName, birthday, profilePicture } = userUpdate;
 		const updatedUserId = await User.update(
-			{ firstName, lastName, birthday },
+			{ firstName, lastName, birthday, profilePicture },
 			{ where: { id } }
 		);
 

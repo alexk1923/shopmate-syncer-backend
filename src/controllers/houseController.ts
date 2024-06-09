@@ -18,7 +18,7 @@ async function createHouse(req: Request, res: Response, next: NextFunction) {
 	try {
 		const houseCreation = HouseCreation.safeParse(req.body);
 		if (houseCreation.success) {
-			const { name, defaultMembers } = houseCreation.data;
+			const { name, defaultMembers, image } = houseCreation.data;
 			if (!name) {
 				throw new CustomError(
 					"Invalid body, name not provided.",
@@ -31,7 +31,7 @@ async function createHouse(req: Request, res: Response, next: NextFunction) {
 					StatusCodes.BAD_REQUEST
 				);
 			}
-			const house = await houseService.createHouse(name, defaultMembers);
+			const house = await houseService.createHouse(name, defaultMembers, image);
 			return res.status(StatusCodes.CREATED).send(house);
 		}
 

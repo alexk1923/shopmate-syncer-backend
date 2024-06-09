@@ -6,8 +6,6 @@ import { decode } from "punycode";
 
 function auth(req: Request, res: Response, next: NextFunction) {
 	if (req.headers && req.headers.authorization) {
-		console.log("");
-
 		console.log(req.headers.authorization);
 
 		const token = req.headers.authorization.split(" ")[1];

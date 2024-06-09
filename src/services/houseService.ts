@@ -4,7 +4,11 @@ import House from "../models/houseModel.js";
 import User from "../models/userModel.js";
 
 const houseService = {
-	async createHouse(houseName: string, defaultMembersList: string[]) {
+	async createHouse(
+		houseName: string,
+		defaultMembersList: string[],
+		image: string | null
+	) {
 		const userList = [];
 		for (let memberUsername of defaultMembersList) {
 			const user = await User.findOne({ where: { username: memberUsername } });
@@ -25,7 +29,7 @@ const houseService = {
 			userList.push(user);
 		}
 
-		const house = new House({ name: houseName });
+		const house = new House({ name: houseName, image });
 		const createdHouse = await house.save();
 		for (let user of userList) {
 			await user.update({ houseId: createdHouse.id });
@@ -39,7 +43,7 @@ const houseService = {
 		if (!house) {
 			throw new CustomError("House not found", StatusCodes.NOT_FOUND);
 		}
-		return { house };
+		return house;
 	},
 
 	async updateHouse(id: number, name: string) {

@@ -45,13 +45,41 @@ async function getAllItems(req: Request, res: Response, next: NextFunction) {
 	}
 }
 
+async function getAllFood(req: Request, res: Response, next: NextFunction) {
+	try {
+		let queryParams: ItemsFilterType = {
+			houseId: Number(req.query.houseId),
+		};
+
+		if (req.query.storeId) {
+			queryParams = { ...queryParams, storeId: Number(req.query.storeId) };
+		}
+
+		const itemsInput = ItemsFilter.safeParse(queryParams);
+
+		if (itemsInput.success) {
+			const foodList = await itemService.getAllFood(queryParams);
+			return res.status(StatusCodes.OK).send(foodList);
+		}
+		throw new CustomError(
+			"Invalid query params provided. Check API specs.",
+			StatusCodes.BAD_REQUEST
+		);
+	} catch (err) {
+		next(err);
+	}
+}
+
 async function addItem(req: Request, res: Response, next: NextFunction) {
 	try {
 		const itemInput = ItemAdd.safeParse(req.body);
+
 		if (itemInput.success) {
 			const createdItem = await itemService.addItem(itemInput.data);
 			return res.status(StatusCodes.OK).send(createdItem);
 		}
+
+		console.log(itemInput.error);
 		throw new CustomError(
 			"Invalid body provided. Check API specs.",
 			StatusCodes.BAD_REQUEST
@@ -91,4 +119,4 @@ async function deleteItem(req: Request, res: Response, next: NextFunction) {
 	}
 }
 
-export { getAllItems, getItem, addItem, updateItem, deleteItem };
+export { getAllItems, getAllFood, getItem, addItem, updateItem, deleteItem };

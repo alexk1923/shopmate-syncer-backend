@@ -29,14 +29,15 @@ const UserUpdate = z.object({
 	firstName: z.string().optional(),
 	lastName: z.string().optional(),
 	birthday: z.coerce.date().optional(),
+	profilePicture: z.string().optional(),
 });
 type UserUpdateType = z.infer<typeof UserUpdate>;
 
 const UserCreation = z.object({
 	username: z.string(),
 	email: z.string().email(),
-	firstName: z.string(),
-	lastName: z.string(),
+	firstName: z.string().optional(),
+	lastName: z.string().optional(),
 	birthday: z.coerce.date().optional(),
 	password: z
 		.string()
@@ -49,6 +50,7 @@ type UserCreationType = z.infer<typeof UserCreation>;
 const HouseCreation = z.object({
 	name: z.string(),
 	defaultMembers: z.array(z.string()).nonempty(),
+	image: z.string().nullable(),
 });
 
 const HouseUpdate = z.object({

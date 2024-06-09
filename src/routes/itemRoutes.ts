@@ -6,13 +6,15 @@ import {
 	getItem,
 	getAllItems,
 	updateItem,
+	getAllFood,
 	deleteItem,
 } from "../controllers/itemController.js";
 
-router.get("/item/:id", getItem);
+router.get("/items/:id", getItem);
 router.get("/items", getAllItems);
-router.post("/item", addItem);
-router.patch("/item/:id", updateItem);
-router.delete("/item/:id", deleteItem);
+router.get("/food", getAllFood);
+router.post("/items", addItem);
+router.patch("/items/:id", updateItem);
+router.delete("/items/:id", deleteItem);
 
 export default router;

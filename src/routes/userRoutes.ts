@@ -4,8 +4,14 @@ import {
 	getUser,
 	updateUser,
 	deleteUser,
+	getUsers,
 } from "../controllers/userController.js";
-import { login, register } from "../controllers/authenticationController.js";
+import {
+	generateSignature,
+	login,
+	register,
+	verifyToken,
+} from "../controllers/authenticationController.js";
 import { auth } from "../middleware/auth.js";
 
 /**
@@ -107,7 +113,7 @@ import { auth } from "../middleware/auth.js";
 
 /**
  * @swagger
- * /api/user/{id}:
+ * /api/users/{id}:
  *   get:
  *     tags:
  *       - User
@@ -135,7 +141,9 @@ import { auth } from "../middleware/auth.js";
  *       '404':
  *         description: User not found
  */
-router.get("/user/:id", auth, getUser);
+router.get("/users/:id", auth, getUser);
+
+router.get("/verify-token", auth, verifyToken);
 
 /**
  * @swagger
@@ -211,7 +219,7 @@ router.post("/login", login);
 
 /**
  * @swagger
- * /api/user/{id}:
+ * /api/users/{id}:
  *   put:
  *     tags:
  *       - User
@@ -259,11 +267,11 @@ router.post("/login", login);
  *       500:
  *         description: Server error
  */
-router.patch("/user/:id", auth, updateUser);
+router.patch("/users/:id", auth, updateUser);
 
 /**
  * @swagger
- * /api/user/{id}:
+ * /api/users/{id}:
  *   delete:
  *     tags:
  *       - User
@@ -285,6 +293,10 @@ router.patch("/user/:id", auth, updateUser);
  *       500:
  *         description: Server error
  */
-router.delete("/user/:id", auth, deleteUser);
+router.delete("/users/:id", auth, deleteUser);
+
+router.get("/users", auth, getUsers);
+
+router.post("/upload", auth, generateSignature);
 
 export default router;

@@ -8,6 +8,15 @@ import { UserCreation, UserUpdate } from "../types/index.js";
 import { z } from "zod";
 import { CustomError } from "../errors/errorTypes.js";
 
+async function getUsers(req: Request, res: Response, next: NextFunction) {
+	try {
+		const foundUsers = await userService.getUsers();
+		res.status(StatusCodes.OK).send(foundUsers);
+	} catch (err) {
+		next(err);
+	}
+}
+
 async function getUser(req: Request, res: Response, next: NextFunction) {
 	try {
 		const { id } = req.params;
@@ -50,4 +59,4 @@ async function deleteUser(req: Request, res: Response, next: NextFunction) {
 	}
 }
 
-export { getUser, updateUser, deleteUser };
+export { getUser, updateUser, deleteUser, getUsers };

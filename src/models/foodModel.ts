@@ -1,17 +1,34 @@
-import { Column, DataType, HasMany, Table } from "sequelize-typescript";
+import {
+	BelongsTo,
+	BelongsToMany,
+	Column,
+	DataType,
+	ForeignKey,
+	HasMany,
+	Model,
+	PrimaryKey,
+	Table,
+	Unique,
+} from "sequelize-typescript";
 import Item from "./itemModel.js";
-import FoodType from "./foodTagModel.js";
+import GenericModel from "./genericModel.js";
+import Food_FoodCategory from "./food-foodCategory.js";
+import FoodCategory from "./foodCategory.js";
 
 @Table({
-    tableName: "food",
-  })
-export default class Food extends Item {
-    @Column({
-        type: DataType.DATE,
-        field: "expiry_date"
-      })
-      expiryDate?: Date;
+	tableName: "food",
+})
+export default class Food extends GenericModel {
+	@ForeignKey(() => Item)
+	@Column(DataType.INTEGER)
+	itemId!: number;
 
-    @HasMany(() => FoodType)
-    foodType: FoodType[] = [];
+	@BelongsTo(() => Item)
+	item!: Item;
+
+	@Column(DataType.DATE)
+	expiryDate!: Date;
+
+	@BelongsToMany(() => FoodCategory, () => Food_FoodCategory)
+	tags!: FoodCategory[];
 }

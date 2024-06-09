@@ -7,13 +7,14 @@ import {
 	ForeignKey,
 	HasOne,
 	Unique,
+	Default,
 } from "sequelize-typescript";
 import GenericModel from "./genericModel.js";
 import User from "./userModel.js";
 import Store from "./storeModel.js";
-import Barcode from "./barCodeModel.js";
-import Inventory from "./inventoryModel.js";
+
 import House from "./houseModel.js";
+import Food from "./foodModel.js";
 
 @Table({
 	tableName: "item",
@@ -29,7 +30,20 @@ export default class Item extends GenericModel {
 		type: DataType.INTEGER,
 		field: "quantity",
 	})
-	quantity?: Number;
+	quantity?: number;
+
+	@Column({
+		type: DataType.STRING,
+		field: "image",
+	})
+	image?: string;
+
+	@Default(false)
+	@Column({
+		type: DataType.BOOLEAN,
+		field: "is_food",
+	})
+	isFood?: boolean;
 
 	@ForeignKey(() => House)
 	houseId!: number;
@@ -41,16 +55,18 @@ export default class Item extends GenericModel {
 	@BelongsTo(() => Store)
 	store: Store = {} as Store;
 
-	@Unique
 	@Column({
 		type: DataType.STRING(255),
 		field: "barcode",
 	})
-	barcode?: String;
+	barcode?: string;
 
 	@ForeignKey(() => User)
 	boughtById!: number;
 
 	@BelongsTo(() => User)
 	boughtBy: User = {} as User;
+
+	@HasOne(() => Food)
+	food?: Food;
 }

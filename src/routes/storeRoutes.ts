@@ -9,10 +9,10 @@ import {
 	getAllStores,
 } from "../controllers/storeController.js";
 
-router.post("/store", auth, addStore);
-router.get("/store", auth, getAllStores);
-router.get("/store/:id", auth, getStore);
-router.patch("/store/:id", auth, updateStore);
-router.delete("/store/:id", auth, deleteStore);
+router.post("/stores", auth, addStore);
+router.get("/stores", auth, getAllStores);
+router.get("/stores/:id", auth, getStore);
+router.patch("/stores/:id", auth, updateStore);
+router.delete("/stores/:id", auth, deleteStore);
 
 export default router;

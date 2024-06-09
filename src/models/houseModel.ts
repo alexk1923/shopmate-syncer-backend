@@ -29,6 +29,11 @@ export default class House extends GenericModel {
 	@HasMany(() => User)
 	members: User[] = [];
 
+	@Column({
+		type: DataType.STRING(255),
+	})
+	image?: string;
+
 	@HasOne(() => Inventory)
 	inventory!: Inventory;
 
