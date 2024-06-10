@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express from "express";
 import usersRoutes from "./routes/userRoutes.js";
 import houseRoutes, { HouseSchema } from "./routes/houseRoutes.js";
-
 const app = express();
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";

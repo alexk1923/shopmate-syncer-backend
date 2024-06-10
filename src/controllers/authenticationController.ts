@@ -1,13 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
 import jwt, { Secret } from "jsonwebtoken";
-
 import { NextFunction, Request, Response } from "express";
 import UserCredential from "../models/userCredentialModel.js";
-import { Sequelize } from "sequelize";
 import bcrypt from "bcrypt";
 import { UserCreation } from "../types/index.js";
 import { StatusCodes } from "http-status-codes";
 import userService from "../services/userService.js";
-import { z } from "zod";
 import { CustomError } from "../errors/errorTypes.js";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -84,6 +83,9 @@ async function register(req: Request, res: Response, next: NextFunction) {
 async function verifyToken(req: Request, res: Response, next: NextFunction) {
 	res.status(StatusCodes.OK).send({ authorization: true });
 }
+
+console.log("process env:");
+console.log(process.env);
 
 cloudinary.config({
 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
