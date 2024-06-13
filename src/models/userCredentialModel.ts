@@ -35,4 +35,11 @@ export default class UserCredential extends GenericModel {
 
 	@BelongsTo(() => User)
 	user: User = {} as User;
+
+	@Unique
+	@Column({
+		type: DataType.STRING(255),
+		field: "notification_token",
+	})
+	notificationToken?: string;
 }

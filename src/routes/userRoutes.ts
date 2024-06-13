@@ -10,6 +10,7 @@ import {
 	generateSignature,
 	login,
 	register,
+	updateNotificationToken,
 	verifyToken,
 } from "../controllers/authenticationController.js";
 import { auth } from "../middleware/auth.js";
@@ -298,5 +299,7 @@ router.delete("/users/:id", auth, deleteUser);
 router.get("/users", auth, getUsers);
 
 router.post("/upload", auth, generateSignature);
+
+router.patch("/notificationToken/:userId", auth, updateNotificationToken);
 
 export default router;

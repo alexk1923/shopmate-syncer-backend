@@ -16,6 +16,7 @@ import shoppingScheduleRoutes from "./routes/shoppingScheduleRoutes.js";
 import itemRoutes from "./routes/itemRoutes.js";
 import storeRoutes from "./routes/storeRoutes.js";
 import cors from "cors";
+import { NotificationService } from "./services/notificationService.js";
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -63,4 +64,5 @@ app.listen(port, () => {
 	app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));
 	console.log(`Server started on port ${port}.`);
 	connectToDatabase();
+	NotificationService.initializeNotificationScheduler();
 });

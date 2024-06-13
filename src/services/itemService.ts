@@ -30,7 +30,6 @@ const itemService = {
 				"quantity",
 				"isFood",
 				"houseId",
-				"storeId",
 				"barcode",
 			],
 			include: [
@@ -53,11 +52,15 @@ const itemService = {
 						},
 					],
 				},
+				{
+					model: Store,
+					attributes: ["id", "name", "address"],
+				},
 			],
 		});
 
 		if (itemsFilter.storeId) {
-			const filteredItems = itemList.map(
+			const filteredItems = itemList.filter(
 				(item) => item.getDataValue("storeId") === itemsFilter.storeId
 			);
 			return filteredItems;

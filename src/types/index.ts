@@ -61,6 +61,10 @@ const HouseAddMember = z.object({
 	userId: z.number(),
 });
 
+const NotificationTokenUpdate = z.object({
+	notificationToken: z.string(),
+});
+
 export {
 	UserCreation,
 	UserCreationType,
@@ -70,4 +74,5 @@ export {
 	HouseUpdate,
 	HouseAddMember,
 	Paths,
+	NotificationTokenUpdate,
 };

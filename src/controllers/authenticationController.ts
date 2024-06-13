@@ -4,11 +4,12 @@ import jwt, { Secret } from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
 import UserCredential from "../models/userCredentialModel.js";
 import bcrypt from "bcrypt";
-import { UserCreation } from "../types/index.js";
+import { NotificationTokenUpdate, UserCreation } from "../types/index.js";
 import { StatusCodes } from "http-status-codes";
 import userService from "../services/userService.js";
 import { CustomError } from "../errors/errorTypes.js";
 import { v2 as cloudinary } from "cloudinary";
+import { NotificationService } from "../services/notificationService.js";
 
 const login = async (req: Request, res: Response) => {
 	try {
@@ -84,16 +85,42 @@ async function verifyToken(req: Request, res: Response, next: NextFunction) {
 	res.status(StatusCodes.OK).send({ authorization: true });
 }
 
-console.log("process env:");
-console.log(process.env);
+async function updateNotificationToken(
+	req: Request,
+	res: Response,
+	next: NextFunction
+) {
+	try {
+		const userUpdatedCredentials = NotificationTokenUpdate.safeParse(req.body);
+		const { userId } = req.params;
+
+		if (userUpdatedCredentials.success) {
+			const user = await NotificationService.updateNotificationToken(
+				Number(userId),
+				userUpdatedCredentials.data.notificationToken
+			);
+			console.log("updated user:");
+			console.log(user);
+			res.status(StatusCodes.CREATED).send({
+				message: `Updated notification token = ${user.notificationToken} for user with id = ${user.id}`,
+			});
+		} else {
+			console.log(userUpdatedCredentials.error.errors);
+			throw new CustomError(
+				"Invalid body provided. Check API specs.",
+				StatusCodes.BAD_REQUEST
+			);
+		}
+	} catch (err) {
+		next(err);
+	}
+}
 
 cloudinary.config({
 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
 	api_key: process.env.CLOUDINARY_API_KEY,
 	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-console.log(cloudinary.config());
 
 async function generateSignature(
 	req: Request,
@@ -115,4 +142,10 @@ async function generateSignature(
 		});
 }
 
-export { login, register, verifyToken, generateSignature };
+export {
+	login,
+	register,
+	verifyToken,
+	generateSignature,
+	updateNotificationToken,
+};

@@ -55,7 +55,7 @@ export default class User extends GenericModel {
 	birthday?: Date | null;
 
 	@ForeignKey(() => House)
-	houseId?: Number | null;
+	houseId?: number | null;
 
 	@BelongsTo(() => House)
 	house: House = {} as House;

@@ -4,11 +4,10 @@ const foodCategories = [
 	"DRINKS",
 	"MEAT",
 	"DAIRY",
-	"FISH",
 	"GRAINS",
-	"FRUIT",
-	"VEGETABLE",
+	"FRUITS_VEGETABLES",
 	"PROTEIN",
+	"OTHER",
 ] as const;
 
 export { foodCategories };
