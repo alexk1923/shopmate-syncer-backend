@@ -15,7 +15,7 @@ export default class GenericModel extends Model {
 		unique: true,
 		field: "id",
 	})
-	id?: number;
+	id!: number;
 
 	@CreatedAt
 	readonly createdAt?: Date;

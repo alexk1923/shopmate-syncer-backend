@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { CustomError } from "../errors/errorTypes.js";
 import House from "../models/houseModel.js";
 import User from "../models/userModel.js";
+import Item from "../models/itemModel.js";
 
 const houseService = {
 	async createHouse(
@@ -39,11 +40,25 @@ const houseService = {
 	},
 
 	async getHouse(id: number) {
-		const house = await House.findByPk(id, { include: [User] });
+		const house = await House.findByPk(id, {
+			include: [
+				User,
+				{
+					model: Item,
+					as: "items",
+					attributes: ["id", "barcode", "quantity", "image", "name"],
+				},
+			],
+		});
 		if (!house) {
 			throw new CustomError("House not found", StatusCodes.NOT_FOUND);
 		}
 		return house;
+	},
+
+	async getAllHouses() {
+		const housesList = await House.findAll({});
+		return housesList;
 	},
 
 	async updateHouse(id: number, name: string) {

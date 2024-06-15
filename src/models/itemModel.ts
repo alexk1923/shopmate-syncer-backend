@@ -24,13 +24,13 @@ export default class Item extends GenericModel {
 		type: DataType.STRING(255),
 		field: "name",
 	})
-	name?: string;
+	name!: string;
 
 	@Column({
 		type: DataType.INTEGER,
 		field: "quantity",
 	})
-	quantity?: number;
+	quantity!: number;
 
 	@Column({
 		type: DataType.STRING,
@@ -59,7 +59,7 @@ export default class Item extends GenericModel {
 		type: DataType.STRING(255),
 		field: "barcode",
 	})
-	barcode?: string;
+	barcode!: string;
 
 	@ForeignKey(() => User)
 	boughtById!: number;

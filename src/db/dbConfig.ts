@@ -50,7 +50,7 @@ async function connectToDatabase() {
 		],
 	});
 
-	sequelize.sync({ alter: true });
+	sequelize.sync();
 	// for (const category of foodCategories) {
 	// 	await FoodCategory.create({ name: category });
 	// }

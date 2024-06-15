@@ -20,7 +20,48 @@ const itemService = {
 		return item;
 	},
 
-	async getAllItems(itemsFilter: ItemsFilterType) {
+	async getAllItems() {
+		const itemList = await Item.findAll({
+			attributes: [
+				"id",
+				"name",
+				"image",
+				"quantity",
+				"isFood",
+				"houseId",
+				"barcode",
+			],
+			include: [
+				{
+					model: User,
+					as: "boughtBy",
+					attributes: ["id", "username", "firstName", "lastName"],
+				},
+				{
+					model: Food,
+					attributes: ["id", "expiryDate"],
+					include: [
+						{
+							model: FoodCategory,
+							as: "tags",
+							attributes: ["id", "name"],
+							through: {
+								attributes: [], // We don't need any attributes from the join table
+							},
+						},
+					],
+				},
+				{
+					model: Store,
+					attributes: ["id", "name", "address"],
+				},
+			],
+		});
+
+		return itemList;
+	},
+
+	async getAllItemsByHouse(itemsFilter: ItemsFilterType) {
 		const itemList = await Item.findAll({
 			where: { houseId: itemsFilter.houseId },
 			attributes: [

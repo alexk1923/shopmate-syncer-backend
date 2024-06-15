@@ -17,6 +17,7 @@ import itemRoutes from "./routes/itemRoutes.js";
 import storeRoutes from "./routes/storeRoutes.js";
 import cors from "cors";
 import { NotificationService } from "./services/notificationService.js";
+import recommendationRoute from "./routes/recommendationRoutes.js";
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -27,6 +28,7 @@ app.use("/api/", houseRoutes);
 app.use("/api/", itemRoutes);
 app.use("/api/", storeRoutes);
 app.use("/api/", shoppingScheduleRoutes);
+app.use("/api/", recommendationRoute);
 
 app.use(errorHandler);
 

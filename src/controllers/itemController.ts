@@ -33,7 +33,7 @@ async function getAllItems(req: Request, res: Response, next: NextFunction) {
 		const itemsInput = ItemsFilter.safeParse(queryParams);
 
 		if (itemsInput.success) {
-			const items = await itemService.getAllItems(queryParams);
+			const items = await itemService.getAllItemsByHouse(queryParams);
 			return res.status(StatusCodes.OK).send(items);
 		}
 		throw new CustomError(

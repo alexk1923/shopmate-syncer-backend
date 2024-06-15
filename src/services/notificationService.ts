@@ -21,7 +21,9 @@ const sentNotifications = async function () {
 			},
 		});
 		if (user.houseId) {
-			const items = await itemService.getAllItems({ houseId: user.houseId });
+			const items = await itemService.getAllItemsByHouse({
+				houseId: user.houseId,
+			});
 			for (let item of items) {
 				let body;
 				// console.log("item is:");
