@@ -179,54 +179,39 @@ async function recommendItems(
 }
 
 type VectorType = { [key: string]: number };
+type RecommendationType = {
+	collaborativeFiltering: string[];
+	soonExpiryItems: any[];
+};
 
 export const RecommendationSystem = {
 	async getRecommendation(userId: number, houseId: number) {
-		const allRecommendations = {};
+		const allRecommendations: RecommendationType = {
+			collaborativeFiltering: [],
+			soonExpiryItems: [],
+		};
 
-		const itemsByHouse = (await itemService.getAllItemsByHouse({ houseId }))
+		const user: User = await userService.getUser(userId);
+		if (!user.houseId) {
+			console.log("here");
+			return [];
+		}
+
+		const itemsByHouse = (
+			await itemService.getAllItemsByHouse({ houseId: user.houseId })
+		)
 			.map((item) => item.toJSON())
 			.filter((item) => item.isFood && item.food);
-
-		// const allItemsGroupe
-		// for (let house of houses) {
-
-		// 	const itemsByHouse = (
-		// 		await itemService.getAllItemsByHouse({ houseId: house.id })
-		// 	).filter((item) => item.isFood && item.food);
-
-		// }
-
-		// Get grouped terms (only normalized names of items)
-		const groupedTerms = new Map<number, string[]>();
 
 		const groupedBarcodes = new Map<
 			number,
 			{ barcode: string; quantity: number }[]
 		>();
 
-		// Get grouped items with full details
-		const groupedItems = new Map<number, Item[]>();
-
 		// Get food item type
 		const allItems: Item[] = (await itemService.getAllItems())
 			.map((item) => item.toJSON())
 			.filter((item) => item.isFood && item.food);
-
-		// Populate groupedTerms
-		allItems.forEach((item) => {
-			const termsList = item.name?.split(" ");
-			const houseId = item.houseId;
-			for (let term of termsList) {
-				const normalizedTerm = normalizeString(term.toLowerCase());
-				const group = groupedTerms.get(houseId);
-				if (!group) {
-					groupedTerms.set(houseId, [normalizedTerm]);
-				} else {
-					group.push(normalizedTerm);
-				}
-			}
-		});
 
 		// Populate grouped items (full details)
 		allItems.forEach((item) => {
@@ -249,45 +234,7 @@ export const RecommendationSystem = {
 			}
 		});
 
-		allItems.forEach((item) => {
-			const buyerId = item.boughtBy.id;
-
-			const group = groupedItems.get(buyerId);
-			if (!group) {
-				groupedItems.set(buyerId, [item]);
-			} else {
-				group.push(item);
-			}
-		});
-
-		// Get list of arrays after grouping
-		const allItemsGroupedArray = Array.from(groupedItems.values());
 		const documents = new Map<number, VectorType>();
-
-		/* For each house, get the list of terms and determine tfIdf score for each one, then add it
-		 * to the respective house (=document) map
-		 */
-		// for (const [houseId, listOfTerms] of groupedTerms.entries()) {
-		// 	const houseVector: VectorType = {};
-		// 	for (const term of listOfTerms) {
-		// 		console.log("Pentru termenul " + term + " din casa cu id= " + houseId);
-
-		// 		console.log("Trimit mai departe urmatorul grouped items:");
-
-		// 		const grouped = groupedItems.get(houseId);
-		// 		const groupedMap = grouped?.map((group) => {
-		// 			return { id: group.id, name: group.name, quantity: group.quantity };
-		// 		});
-		// 		console.log(groupedMap);
-
-		// 		const tf = calculateTf(term, groupedItems.get(houseId) ?? []);
-		// 		const idf = calculateIdf(term, allItemsGroupedArray);
-		// 		const tfIdf = tf * idf;
-		// 		houseVector[term] = tfIdf;
-		// 	}
-
-		// 	documents.set(houseId, houseVector);
-		// }
 
 		for (const [buyerId, listOfBarcodeObjects] of groupedBarcodes.entries()) {
 			const userVector: VectorType = {};
@@ -301,43 +248,37 @@ export const RecommendationSystem = {
 		console.log("Documents:");
 		console.log(documents);
 
-		allRecommendations.collaborateFiltering = await recommendItems(
+		allRecommendations.collaborativeFiltering = await recommendItems(
 			userId,
 			documents
 		);
+
+		const soonExpiryItems = [];
+
+		// Get items based on expiry dates
+		for (let item of itemsByHouse) {
+			const daysUntilExpiry = differenceInDays(
+				// @ts-ignore
+				item.food?.expiryDate,
+				startOfToday()
+			);
+			if (item.boughtById === userId && daysUntilExpiry <= 5) {
+				soonExpiryItems.push({
+					item,
+					message: `Item ${item.name} is expiring in less than five days. Maybe you should buy a new one`,
+					daysUntilExpiry,
+				});
+			}
+		}
+
+		soonExpiryItems
+			.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry)
+			.slice(0, 5);
+
+		allRecommendations.soonExpiryItems = soonExpiryItems;
+
 		console.log(allRecommendations);
-
-		// for (const term of differentTerms) {
-		// 	const tf = calculateTf(term, itemsByHouse);
-		// 	const idf = calculateIdf(term, allItemsGroupedArray);
-		// 	objTfIdf.push({ term, tfIdf: tf * idf });
-		// }
-
-		// console.log(objTfIdf);
-
-		// calculateTf("sare", itemsByHouse);
-		// calculateTf("sare", allItems);
-
-		// const soonExpiryItems = [];
-
-		// // Get items based on expiry dates
-		// for (let item of filteredItems) {
-		// 	const daysUntilExpiry = differenceInDays(
-		// 		// @ts-ignore
-		// 		item.food?.expiryDate,
-		// 		startOfToday()
-		// 	);
-		// 	if (item.boughtById === userId && daysUntilExpiry <= 5) {
-		// 		soonExpiryItems.push({
-		// 			item,
-		// 			message: `Item ${item.name} is expiring in less than five days. Maybe you should buy a new one`,
-		// 			daysUntilExpiry,
-		// 		});
-		// 	}
-		// }
-
-		// soonExpiryItems.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
-
+		return allRecommendations;
 		// const recommendations = await getRecommendations(user, items);
 	},
 };

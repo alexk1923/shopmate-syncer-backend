@@ -10,7 +10,6 @@ import {
 	UserUpdate,
 	UserUpdateType,
 } from "../types/index.js";
-import House from "../models/houseModel.js";
 
 const userService = {
 	async getUsers() {
