@@ -46,7 +46,14 @@ const houseService = {
 				{
 					model: Item,
 					as: "items",
-					attributes: ["id", "barcode", "quantity", "image", "name"],
+					attributes: [
+						"id",
+						"barcode",
+						"quantity",
+						"image",
+						"name",
+						"boughtById",
+					],
 				},
 			],
 		});

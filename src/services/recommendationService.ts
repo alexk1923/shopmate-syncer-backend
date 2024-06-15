@@ -4,6 +4,8 @@ import Item from "../models/itemModel.js";
 import houseService from "./houseService.js";
 import e from "express";
 import House from "../models/houseModel.js";
+import userService from "./userService.js";
+import User from "../models/userModel.js";
 
 const normalizeString = (str: string) => {
 	return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -114,49 +116,58 @@ const calculateIdf = (term: string, documents: Item[][]) => {
 };
 
 async function recommendItems(
-	houseId: number,
+	userId: number,
 	documents: Map<number, VectorType>
 ) {
 	// Calculate the vector for the given house
-	const house: House = (await houseService.getHouse(houseId)).toJSON();
-	const houseVector = documents.get(houseId);
+	const user: User = await userService.getUser(userId);
+	if (!user.houseId) {
+		return [];
+	}
+
+	// Get the house data the user is living in
+	const house: House = (await houseService.getHouse(user.houseId)).toJSON();
+
+	// Get the user vector (purchases)
+	const userVector = documents.get(userId);
 
 	// Calculate the cosine similarity between the house vector and all other house vectors
 	let similarities = [];
-	for (const [otherHouseId, otherVector] of documents.entries()) {
-		if (houseVector && otherHouseId !== houseId) {
-			const similarity = cosineSimilarity(houseVector, otherVector);
-			similarities.push({
-				houseId: otherHouseId,
-				similarity,
-				vector: otherVector,
-			});
+	for (const [otherUserId, otherVector] of documents.entries()) {
+		if (userVector && otherUserId !== userId) {
+			const similarity = cosineSimilarity(userVector, otherVector);
+			if (similarity > 0.25) {
+				similarities.push({
+					userId: otherUserId,
+					similarity,
+					vector: otherVector,
+				});
+			}
 		}
 	}
 
 	// Sort by similarity
 	similarities.sort((a, b) => b.similarity - a.similarity);
 
-	// Get the top 5 most similar houses
-	const topHouses = similarities.slice(0, 5);
+	// Get the top 5 most similar users in terms of purchases
+	const topUsers = similarities.slice(0, 5);
 
-	console.log("top similar houses:");
-	console.log(topHouses);
+	console.log(topUsers);
 
 	const recommendedItems: string[] = [];
-	for (let topHouse of topHouses) {
+	for (let topUser of topUsers) {
 		// Transform key-value to json object
 		const items = [];
-		for (let barcode in topHouse.vector) {
-			items.push({ barcode, quantity: topHouse.vector[barcode] });
+		for (let barcode in topUser.vector) {
+			items.push({ barcode, quantity: topUser.vector[barcode] });
 		}
 
-		// Get only non-owned products and sort it by quantity
+		// Get only non-owned (bought by user) products in user house and sort it by quantity
 		items
 			.filter(
 				(a) =>
 					!house.items.find(
-						(existingItem) => existingItem.barcode === a.barcode
+						(item) => item.boughtById === userId && item.barcode === a.barcode
 					)
 			)
 			.sort((a, b) => b.quantity - a.quantity)
@@ -173,9 +184,9 @@ export const RecommendationSystem = {
 	async getRecommendation(userId: number, houseId: number) {
 		const allRecommendations = {};
 
-		const itemsByHouse = (
-			await itemService.getAllItemsByHouse({ houseId })
-		).filter((item) => item.isFood && item.food);
+		const itemsByHouse = (await itemService.getAllItemsByHouse({ houseId }))
+			.map((item) => item.toJSON())
+			.filter((item) => item.isFood && item.food);
 
 		// const allItemsGroupe
 		// for (let house of houses) {
@@ -198,9 +209,9 @@ export const RecommendationSystem = {
 		const groupedItems = new Map<number, Item[]>();
 
 		// Get food item type
-		const allItems = (await itemService.getAllItems()).filter(
-			(item) => item.isFood && item.food
-		);
+		const allItems: Item[] = (await itemService.getAllItems())
+			.map((item) => item.toJSON())
+			.filter((item) => item.isFood && item.food);
 
 		// Populate groupedTerms
 		allItems.forEach((item) => {
@@ -219,11 +230,11 @@ export const RecommendationSystem = {
 
 		// Populate grouped items (full details)
 		allItems.forEach((item) => {
-			const houseId = item.houseId;
+			const buyerId = item.boughtBy.id;
 
-			const group = groupedBarcodes.get(houseId);
+			const group = groupedBarcodes.get(buyerId);
 			if (!group) {
-				groupedBarcodes.set(houseId, [
+				groupedBarcodes.set(buyerId, [
 					{ barcode: item.barcode, quantity: item.quantity },
 				]);
 			} else {
@@ -239,11 +250,11 @@ export const RecommendationSystem = {
 		});
 
 		allItems.forEach((item) => {
-			const houseId = item.houseId;
+			const buyerId = item.boughtBy.id;
 
-			const group = groupedItems.get(houseId);
+			const group = groupedItems.get(buyerId);
 			if (!group) {
-				groupedItems.set(houseId, [item]);
+				groupedItems.set(buyerId, [item]);
 			} else {
 				group.push(item);
 			}
@@ -278,20 +289,20 @@ export const RecommendationSystem = {
 		// 	documents.set(houseId, houseVector);
 		// }
 
-		for (const [houseId, listOfBarcodeObjects] of groupedBarcodes.entries()) {
-			const houseVector: VectorType = {};
+		for (const [buyerId, listOfBarcodeObjects] of groupedBarcodes.entries()) {
+			const userVector: VectorType = {};
 			for (const objData of listOfBarcodeObjects) {
-				houseVector[objData.barcode] = objData.quantity;
+				userVector[objData.barcode] = objData.quantity;
 			}
 
-			documents.set(houseId, houseVector);
+			documents.set(buyerId, userVector);
 		}
 
 		console.log("Documents:");
 		console.log(documents);
 
 		allRecommendations.collaborateFiltering = await recommendItems(
-			houseId,
+			userId,
 			documents
 		);
 		console.log(allRecommendations);
