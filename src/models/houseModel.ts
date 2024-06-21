@@ -9,7 +9,6 @@ import {
 } from "sequelize-typescript";
 import GenericModel from "./genericModel.js";
 import User from "./userModel.js";
-import Inventory from "./inventoryModel.js";
 import Item from "./itemModel.js";
 
 export interface IHouse extends House {
@@ -33,9 +32,6 @@ export default class House extends GenericModel {
 		type: DataType.STRING(255),
 	})
 	image?: string;
-
-	@HasOne(() => Inventory)
-	inventory!: Inventory;
 
 	@HasMany(() => Item)
 	items: Item[] = [];

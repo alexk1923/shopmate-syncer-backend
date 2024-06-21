@@ -28,4 +28,26 @@ async function getRecommendation(
 	}
 }
 
-export { getRecommendation };
+async function getSimilarUsersRecommendation(
+	req: Request,
+	res: Response,
+	next: NextFunction
+) {
+	try {
+		const { userId } = req.params;
+		const page = Number(req.query.page) ?? null;
+		const pageSize = Number(req.query.pageSize) ?? null;
+
+		const recommendedItems =
+			await RecommendationSystem.getCollaborativeFiltering(
+				Number(userId),
+				page,
+				pageSize
+			);
+		return res.status(StatusCodes.OK).send(recommendedItems);
+	} catch (err) {
+		next(err);
+	}
+}
+
+export { getRecommendation, getSimilarUsersRecommendation };

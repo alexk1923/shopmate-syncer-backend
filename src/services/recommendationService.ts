@@ -6,6 +6,9 @@ import e from "express";
 import House from "../models/houseModel.js";
 import userService from "./userService.js";
 import User from "../models/userModel.js";
+import Store from "../models/storeModel.js";
+
+const MIN_SIMILARITY = 0.4;
 
 const normalizeString = (str: string) => {
 	return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -115,9 +118,11 @@ const calculateIdf = (term: string, documents: Item[][]) => {
 	return Math.log(numberOfDocs / (termAppearances + 1));
 };
 
-async function recommendItems(
+async function getSimilarItems(
 	userId: number,
-	documents: Map<number, VectorType>
+	documents: Map<number, VectorType>,
+	page: number,
+	pageSize: number
 ) {
 	// Calculate the vector for the given house
 	const user: User = await userService.getUser(userId);
@@ -127,17 +132,16 @@ async function recommendItems(
 
 	// Get the house data the user is living in
 	const house: House = (await houseService.getHouse(user.houseId)).toJSON();
-
 	// Get the user vector (purchases)
 	const userVector = documents.get(userId);
 
 	// Calculate the cosine similarity between the house vector and all other house vectors
-	let similarities = [];
+	let topUsers = [];
 	for (const [otherUserId, otherVector] of documents.entries()) {
 		if (userVector && otherUserId !== userId) {
 			const similarity = cosineSimilarity(userVector, otherVector);
-			if (similarity > 0.25) {
-				similarities.push({
+			if (similarity > MIN_SIMILARITY) {
+				topUsers.push({
 					userId: otherUserId,
 					similarity,
 					vector: otherVector,
@@ -147,32 +151,50 @@ async function recommendItems(
 	}
 
 	// Sort by similarity
-	similarities.sort((a, b) => b.similarity - a.similarity);
+	topUsers.sort((a, b) => b.similarity - a.similarity);
 
-	// Get the top 5 most similar users in terms of purchases
-	const topUsers = similarities.slice(0, 5);
-
-	console.log(topUsers);
-
-	const recommendedItems: string[] = [];
+	let recommendedItems: {
+		name: string;
+		image: string;
+		barcode: string;
+		store: Store;
+	}[] = [];
 	for (let topUser of topUsers) {
 		// Transform key-value to json object
-		const items = [];
+		let items = [];
 		for (let barcode in topUser.vector) {
 			items.push({ barcode, quantity: topUser.vector[barcode] });
 		}
 
+		console.log("the items:");
+		console.log(items);
 		// Get only non-owned (bought by user) products in user house and sort it by quantity
-		items
-			.filter(
-				(a) =>
-					!house.items.find(
-						(item) => item.boughtById === userId && item.barcode === a.barcode
-					)
-			)
-			.sort((a, b) => b.quantity - a.quantity)
-			.slice(0, 5)
-			.forEach((item) => recommendedItems.push(item.barcode));
+		recommendedItems = await Promise.all(
+			items
+				.filter(
+					(a) =>
+						!house.items.find(
+							(item) => item.boughtById === userId && item.barcode === a.barcode
+						)
+				)
+				.sort((a, b) => b.quantity - a.quantity)
+				.slice((page - 1) * pageSize, page * pageSize)
+				.map(async (item) => {
+					const newItem = (
+						await itemService.getItemByBarcodeAndBuyer(
+							item.barcode,
+							topUser.userId
+						)
+					)?.toJSON();
+
+					return {
+						name: newItem?.name,
+						barcode: newItem?.barcode,
+						image: newItem?.image,
+						store: newItem?.store,
+					};
+				})
+		);
 	}
 
 	return recommendedItems;
@@ -180,7 +202,7 @@ async function recommendItems(
 
 type VectorType = { [key: string]: number };
 type RecommendationType = {
-	collaborativeFiltering: string[];
+	collaborativeFiltering: any[];
 	soonExpiryItems: any[];
 };
 
@@ -203,20 +225,64 @@ export const RecommendationSystem = {
 			.map((item) => item.toJSON())
 			.filter((item) => item.isFood && item.food);
 
+		allRecommendations.collaborativeFiltering = await getCollaborativeFiltering(
+			userId
+		);
+
+		const soonExpiryItems = [];
+
+		console.log("items by house:");
+		console.log(itemsByHouse);
+
+		// Get items based on expiry dates
+		for (let item of itemsByHouse) {
+			const daysUntilExpiry = differenceInDays(
+				// @ts-ignore
+				item.food?.expiryDate,
+				startOfToday()
+			);
+			if (item.boughtBy.id === userId && daysUntilExpiry <= 5) {
+				soonExpiryItems.push({
+					item,
+					message: `Item ${item.name} is expiring in less than five days. Maybe you should buy a new one`,
+					daysUntilExpiry,
+				});
+			}
+		}
+
+		soonExpiryItems
+			.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry)
+			.slice(0, 5);
+
+		allRecommendations.soonExpiryItems = soonExpiryItems;
+
+		console.log(allRecommendations);
+		return allRecommendations;
+	},
+
+	async getCollaborativeFiltering(
+		userId: number,
+		page: number,
+		pageSize: number
+	) {
+		const user: User = await userService.getUser(userId);
+		if (!user.houseId) {
+			return [];
+		}
+
 		const groupedBarcodes = new Map<
 			number,
 			{ barcode: string; quantity: number }[]
 		>();
 
 		// Get food item type
-		const allItems: Item[] = (await itemService.getAllItems())
-			.map((item) => item.toJSON())
-			.filter((item) => item.isFood && item.food);
+		const allItems: Item[] = (
+			await itemService.getAllItems({ page, pageSize })
+		).map((item) => item.toJSON());
 
 		// Populate grouped items (full details)
 		allItems.forEach((item) => {
 			const buyerId = item.boughtBy.id;
-
 			const group = groupedBarcodes.get(buyerId);
 			if (!group) {
 				groupedBarcodes.set(buyerId, [
@@ -248,37 +314,7 @@ export const RecommendationSystem = {
 		console.log("Documents:");
 		console.log(documents);
 
-		allRecommendations.collaborativeFiltering = await recommendItems(
-			userId,
-			documents
-		);
-
-		const soonExpiryItems = [];
-
-		// Get items based on expiry dates
-		for (let item of itemsByHouse) {
-			const daysUntilExpiry = differenceInDays(
-				// @ts-ignore
-				item.food?.expiryDate,
-				startOfToday()
-			);
-			if (item.boughtById === userId && daysUntilExpiry <= 5) {
-				soonExpiryItems.push({
-					item,
-					message: `Item ${item.name} is expiring in less than five days. Maybe you should buy a new one`,
-					daysUntilExpiry,
-				});
-			}
-		}
-
-		soonExpiryItems
-			.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry)
-			.slice(0, 5);
-
-		allRecommendations.soonExpiryItems = soonExpiryItems;
-
-		console.log(allRecommendations);
-		return allRecommendations;
-		// const recommendations = await getRecommendations(user, items);
+		const result = await getSimilarItems(userId, documents, page, pageSize);
+		return result;
 	},
 };

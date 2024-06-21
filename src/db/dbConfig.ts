@@ -1,7 +1,4 @@
-import pg from "pg";
 import { Sequelize } from "sequelize-typescript";
-import Barcode from "../models/barCodeModel.js";
-import Inventory from "../models/inventoryModel.js";
 import Store from "../models/storeModel.js";
 import Food from "../models/foodModel.js";
 import User from "../models/userModel.js";
@@ -40,7 +37,6 @@ async function connectToDatabase() {
 			Store,
 			User,
 			House,
-			Inventory,
 			Item,
 			Food,
 			FoodCategory,
@@ -50,23 +46,16 @@ async function connectToDatabase() {
 		],
 	});
 
-	sequelize.sync();
-	// for (const category of foodCategories) {
-	// 	await FoodCategory.create({ name: category });
-	// }
-
-	// Add more default categories as needed
-
-	console.log(process.cwd() + "/src/models");
-
 	sequelize
 		.authenticate()
 		.then(() => {
 			console.log("Connection has been established successfully.");
-			initializeDb().catch(console.error);
+			initializeDb();
+			sequelize.sync();
 		})
-		.catch((err) => {
-			console.error("Unable to connect to the database:", err);
+		.catch((error) => {
+			console.error("Unable to connect to the database:");
+			console.log(error);
 		});
 }
 

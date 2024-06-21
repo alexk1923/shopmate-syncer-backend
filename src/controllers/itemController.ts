@@ -20,10 +20,14 @@ async function getItem(req: Request, res: Response, next: NextFunction) {
 	}
 }
 
-async function getAllItems(req: Request, res: Response, next: NextFunction) {
+async function getItemsByHouse(
+	req: Request,
+	res: Response,
+	next: NextFunction
+) {
 	try {
 		let queryParams: ItemsFilterType = {
-			houseId: Number(req.query.houseId),
+			houseId: Number(req.params.houseId),
 		};
 
 		if (req.query.storeId) {
@@ -34,12 +38,28 @@ async function getAllItems(req: Request, res: Response, next: NextFunction) {
 
 		if (itemsInput.success) {
 			const items = await itemService.getAllItemsByHouse(queryParams);
+
 			return res.status(StatusCodes.OK).send(items);
 		}
 		throw new CustomError(
 			"Invalid query params provided. Check API specs.",
 			StatusCodes.BAD_REQUEST
 		);
+	} catch (err) {
+		next(err);
+	}
+}
+
+async function getAllItems(req: Request, res: Response, next: NextFunction) {
+	try {
+		const page = Number(req.query.page) ?? null;
+		const pageSize = Number(req.query.pageSize) ?? null;
+
+		const items = await itemService.getAllItems({ page, pageSize });
+		if (page && pageSize) {
+			return res.status(StatusCodes.OK).send(items);
+		}
+		return res.status(StatusCodes.OK).send(items);
 	} catch (err) {
 		next(err);
 	}
@@ -119,4 +139,12 @@ async function deleteItem(req: Request, res: Response, next: NextFunction) {
 	}
 }
 
-export { getAllItems, getAllFood, getItem, addItem, updateItem, deleteItem };
+export {
+	getItemsByHouse,
+	getAllFood,
+	getItem,
+	addItem,
+	updateItem,
+	deleteItem,
+	getAllItems,
+};

@@ -7,7 +7,7 @@ import {
 	getUsers,
 } from "../controllers/userController.js";
 import {
-	generateSignature,
+	uploadImage,
 	login,
 	register,
 	updateNotificationToken,
@@ -298,7 +298,7 @@ router.delete("/users/:id", auth, deleteUser);
 
 router.get("/users", auth, getUsers);
 
-router.post("/upload", auth, generateSignature);
+router.post("/upload", auth, uploadImage);
 
 router.patch("/notificationToken/:userId", auth, updateNotificationToken);
 

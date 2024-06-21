@@ -20,7 +20,36 @@ const itemService = {
 		return item;
 	},
 
-	async getAllItems() {
+	async getItemByBarcodeAndBuyer(barcode: string, buyerId: number) {
+		const item = Item.findOne({
+			where: { barcode, boughtById: buyerId },
+			include: [
+				{
+					model: Store,
+				},
+			],
+		});
+		return item;
+	},
+
+	async getAllItems({
+		page,
+		pageSize,
+	}: {
+		page: number | null;
+		pageSize: number | null;
+	}) {
+		let limits = {};
+		if (page && pageSize) {
+			limits = {
+				offset: (page - 1) * pageSize,
+				limit: pageSize,
+			};
+		}
+
+		console.log("limits are:");
+		console.log(limits);
+
 		const itemList = await Item.findAll({
 			attributes: [
 				"id",
@@ -56,6 +85,8 @@ const itemService = {
 					attributes: ["id", "name", "address"],
 				},
 			],
+
+			...limits,
 		});
 
 		return itemList;

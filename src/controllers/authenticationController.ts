@@ -122,11 +122,7 @@ cloudinary.config({
 	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-async function generateSignature(
-	req: Request,
-	res: Response,
-	next: NextFunction
-) {
+async function uploadImage(req: Request, res: Response, next: NextFunction) {
 	const { image } = req.body;
 
 	cloudinary.uploader
@@ -142,10 +138,4 @@ async function generateSignature(
 		});
 }
 
-export {
-	login,
-	register,
-	verifyToken,
-	generateSignature,
-	updateNotificationToken,
-};
+export { login, register, verifyToken, uploadImage, updateNotificationToken };
