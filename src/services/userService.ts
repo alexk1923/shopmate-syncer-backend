@@ -10,6 +10,7 @@ import {
 	UserUpdate,
 	UserUpdateType,
 } from "../types/index.js";
+import wishlistService from "./wishlistService.js";
 
 const userService = {
 	async getUsers() {
@@ -58,6 +59,8 @@ const userService = {
 			birthday,
 		});
 		await newUser.save();
+
+		await wishlistService.createWishlistForUser(newUser.id);
 
 		const newCredentials = new UserCredential({
 			email,

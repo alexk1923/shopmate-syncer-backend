@@ -29,7 +29,7 @@ const UserUpdate = z.object({
 	firstName: z.string().optional(),
 	lastName: z.string().optional(),
 	birthday: z.coerce.date().optional(),
-	profilePicture: z.string().optional(),
+	profilePicture: z.string().optional().nullable(),
 });
 type UserUpdateType = z.infer<typeof UserUpdate>;
 
@@ -62,7 +62,7 @@ const HouseAddMember = z.object({
 });
 
 const NotificationTokenUpdate = z.object({
-	notificationToken: z.string(),
+	notificationToken: z.string().nullable(),
 });
 
 export {

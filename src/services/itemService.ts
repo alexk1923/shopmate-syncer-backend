@@ -59,6 +59,7 @@ const itemService = {
 				"isFood",
 				"houseId",
 				"barcode",
+				"createdAt",
 			],
 			include: [
 				{
@@ -93,6 +94,42 @@ const itemService = {
 	},
 
 	async getAllItemsByHouse(itemsFilter: ItemsFilterType) {
+		console.log("filtering:");
+
+		console.log(itemsFilter);
+		const sortedFoodByExpiryDate = itemsFilter.sortBy === "expiryDate";
+
+		let include = [
+			{
+				model: User,
+				as: "boughtBy",
+				attributes: ["id", "username", "firstName", "lastName"],
+			},
+
+			{
+				model: Store,
+				attributes: ["id", "name", "address"],
+			},
+		];
+
+		include.push({
+			// @ts-expect-error
+			model: Food,
+			attributes: ["id", "expiryDate"],
+			as: "food",
+			required: sortedFoodByExpiryDate ? true : false,
+			include: [
+				{
+					model: FoodCategory,
+					as: "tags",
+					attributes: ["id", "name"],
+					through: {
+						attributes: [], // We don't need any attributes from the join table
+					},
+				},
+			],
+		});
+
 		const itemList = await Item.findAll({
 			where: { houseId: itemsFilter.houseId },
 			attributes: [
@@ -103,32 +140,12 @@ const itemService = {
 				"isFood",
 				"houseId",
 				"barcode",
+				"createdAt",
 			],
-			include: [
-				{
-					model: User,
-					as: "boughtBy",
-					attributes: ["id", "username", "firstName", "lastName"],
-				},
-				{
-					model: Food,
-					attributes: ["id", "expiryDate"],
-					include: [
-						{
-							model: FoodCategory,
-							as: "tags",
-							attributes: ["id", "name"],
-							through: {
-								attributes: [], // We don't need any attributes from the join table
-							},
-						},
-					],
-				},
-				{
-					model: Store,
-					attributes: ["id", "name", "address"],
-				},
-			],
+			include,
+			order: sortedFoodByExpiryDate
+				? [[{ model: Food, as: "food" }, "expiryDate", "ASC"]]
+				: [],
 		});
 
 		if (itemsFilter.storeId) {
@@ -138,6 +155,8 @@ const itemService = {
 			return filteredItems;
 		}
 
+		console.log("item list is:");
+		console.log(itemList.map((item) => item.toJSON()));
 		return itemList;
 	},
 
@@ -146,12 +165,12 @@ const itemService = {
 			where: { houseId: itemsFilter.houseId, isFood: true },
 			attributes: [
 				"name",
-
 				"quantity",
 				"isFood",
 				"houseId",
 				"storeId",
 				"barcode",
+				"createdAt",
 			],
 			include: [
 				{

@@ -18,9 +18,12 @@ async function getRecommendation(
 ) {
 	try {
 		const { userId, houseId } = req.params;
+		const page = Number(req.query.page) ?? null;
+		const pageSize = Number(req.query.pageSize) ?? null;
 		const item = await RecommendationSystem.getRecommendation(
 			Number(userId),
-			Number(houseId)
+			page,
+			pageSize
 		);
 		return res.status(StatusCodes.OK).send(item);
 	} catch (err) {

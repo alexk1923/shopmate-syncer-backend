@@ -50,7 +50,9 @@ const sentNotifications = async function () {
 
 				if (
 					userCredential?.notificationToken &&
-					Expo.isExpoPushToken(userCredential.notificationToken)
+					Expo.isExpoPushToken(userCredential.notificationToken) &&
+					body &&
+					body?.length > 0
 				) {
 					messages.push({
 						to: userCredential.notificationToken,
@@ -67,11 +69,11 @@ const sentNotifications = async function () {
 	// Send the notifications
 	// @ts-ignore
 	let chunks = expo.chunkPushNotifications(messages);
-	console.log("==================================================");
+	// console.log("==================================================");
 
-	console.log("my chunks:");
-	console.log(chunks);
-	console.log("==================================================");
+	// console.log("my chunks:");
+	// console.log(chunks);
+	// console.log("==================================================");
 
 	for (let chunk of chunks) {
 		try {
@@ -87,12 +89,12 @@ export const NotificationService = {
 	initializeNotificationScheduler: () => {
 		console.info("Initialising scheduler...");
 		// sentNotifications();
-		schedule.scheduleJob("0 8 * * *", sentNotifications);
+		schedule.scheduleJob("*/1 * * * *", sentNotifications);
 	},
 
 	updateNotificationToken: async (
 		userId: number,
-		notificationToken: string
+		notificationToken: string | null
 	) => {
 		const user = await UserCredential.findByPk(userId);
 		if (!user) {

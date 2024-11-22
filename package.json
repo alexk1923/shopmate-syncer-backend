@@ -7,6 +7,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "tsc --noEmit && tsx watch src/index.ts",
+		"createWishlist": "tsc --noEmit && tsx watch src/createWishlistForExistingUsers.ts",
 		"build": "tsc"
 	},
 	"author": "Alexandru Kullman",

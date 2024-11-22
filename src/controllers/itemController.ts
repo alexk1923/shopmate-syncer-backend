@@ -31,10 +31,22 @@ async function getItemsByHouse(
 		};
 
 		if (req.query.storeId) {
-			queryParams = { ...queryParams, storeId: Number(req.query.storeId) };
+			queryParams = {
+				...queryParams,
+				storeId: Number(req.query.storeId),
+			};
+		}
+
+		if (req.query.sortBy) {
+			queryParams = {
+				...queryParams,
+				sortBy: String(req.query.sortBy) ?? null,
+			};
 		}
 
 		const itemsInput = ItemsFilter.safeParse(queryParams);
+		console.log("the query params:");
+		console.log();
 
 		if (itemsInput.success) {
 			const items = await itemService.getAllItemsByHouse(queryParams);

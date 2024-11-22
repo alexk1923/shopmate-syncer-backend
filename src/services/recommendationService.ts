@@ -8,7 +8,7 @@ import userService from "./userService.js";
 import User from "../models/userModel.js";
 import Store from "../models/storeModel.js";
 
-const MIN_SIMILARITY = 0.4;
+const MIN_SIMILARITY = 0.15;
 
 const normalizeString = (str: string) => {
 	return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -153,7 +153,7 @@ async function getSimilarItems(
 	// Sort by similarity
 	topUsers.sort((a, b) => b.similarity - a.similarity);
 
-	let recommendedItems: {
+	let finalItems: {
 		name: string;
 		image: string;
 		barcode: string;
@@ -169,7 +169,7 @@ async function getSimilarItems(
 		console.log("the items:");
 		console.log(items);
 		// Get only non-owned (bought by user) products in user house and sort it by quantity
-		recommendedItems = await Promise.all(
+		finalItems = await Promise.all(
 			items
 				.filter(
 					(a) =>
@@ -188,6 +188,7 @@ async function getSimilarItems(
 					)?.toJSON();
 
 					return {
+						id: newItem?.id,
 						name: newItem?.name,
 						barcode: newItem?.barcode,
 						image: newItem?.image,
@@ -197,7 +198,9 @@ async function getSimilarItems(
 		);
 	}
 
-	return recommendedItems;
+	console.log("finalItems:");
+	console.log(finalItems);
+	return finalItems;
 }
 
 type VectorType = { [key: string]: number };
@@ -207,7 +210,7 @@ type RecommendationType = {
 };
 
 export const RecommendationSystem = {
-	async getRecommendation(userId: number, houseId: number) {
+	async getRecommendation(userId: number, page: number, pageSize: number) {
 		const allRecommendations: RecommendationType = {
 			collaborativeFiltering: [],
 			soonExpiryItems: [],
@@ -225,14 +228,10 @@ export const RecommendationSystem = {
 			.map((item) => item.toJSON())
 			.filter((item) => item.isFood && item.food);
 
-		allRecommendations.collaborativeFiltering = await getCollaborativeFiltering(
-			userId
-		);
+		allRecommendations.collaborativeFiltering =
+			await this.getCollaborativeFiltering(userId, page, pageSize);
 
 		const soonExpiryItems = [];
-
-		console.log("items by house:");
-		console.log(itemsByHouse);
 
 		// Get items based on expiry dates
 		for (let item of itemsByHouse) {
@@ -277,7 +276,7 @@ export const RecommendationSystem = {
 
 		// Get food item type
 		const allItems: Item[] = (
-			await itemService.getAllItems({ page, pageSize })
+			await itemService.getAllItems({ page: null, pageSize: null })
 		).map((item) => item.toJSON());
 
 		// Populate grouped items (full details)

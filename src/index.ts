@@ -18,6 +18,8 @@ import storeRoutes from "./routes/storeRoutes.js";
 import cors from "cors";
 import { NotificationService } from "./services/notificationService.js";
 import recommendationRoute from "./routes/recommendationRoutes.js";
+import wishlistRoutes from "./routes/wishlistRoutes.js";
+import { addWishlistsDefault } from "./createWishlistForExistingUsers.js";
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -29,6 +31,7 @@ app.use("/api/", itemRoutes);
 app.use("/api/", storeRoutes);
 app.use("/api/", shoppingScheduleRoutes);
 app.use("/api/", recommendationRoute);
+app.use("/api/", wishlistRoutes);
 
 app.use(errorHandler);
 
@@ -66,5 +69,6 @@ app.listen(port, () => {
 	app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));
 	console.log(`Server started on port ${port}.`);
 	connectToDatabase();
+	addWishlistsDefault();
 	NotificationService.initializeNotificationScheduler();
 });

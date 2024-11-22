@@ -9,6 +9,8 @@ import FoodCategory from "../models/foodCategory.js";
 import Food_FoodCategory from "../models/food-foodCategory.js";
 import { foodCategories } from "../constants/constants.js";
 import ShoppingSchedule from "../models/shoppingScheduleModel.js";
+import Wishlist from "../models/wishlistModel.js";
+import WishlistItem from "../models/wishlistItemModel.js";
 
 async function initializeDb() {
 	for (const name of foodCategories) {
@@ -43,6 +45,8 @@ async function connectToDatabase() {
 			Food_FoodCategory,
 			UserCredential,
 			ShoppingSchedule,
+			Wishlist,
+			WishlistItem,
 		],
 	});
 
@@ -51,7 +55,7 @@ async function connectToDatabase() {
 		.then(() => {
 			console.log("Connection has been established successfully.");
 			initializeDb();
-			sequelize.sync();
+			sequelize.sync({ alter: true });
 		})
 		.catch((error) => {
 			console.error("Unable to connect to the database:");

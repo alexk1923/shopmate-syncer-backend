@@ -7,10 +7,13 @@ import {
 	ForeignKey,
 	Unique,
 	HasOne,
+	BeforeCreate,
 } from "sequelize-typescript";
 import GenericModel from "./genericModel.js";
 import House from "./houseModel.js";
 import UserCredential from "./userCredentialModel.js";
+import Wishlist from "./wishlistModel.js";
+import wishlistService from "../services/wishlistService.js";
 
 @Table({
 	tableName: "user_table",
@@ -62,4 +65,12 @@ export default class User extends GenericModel {
 
 	@HasOne(() => UserCredential)
 	userCredential: UserCredential = {} as UserCredential;
+
+	@HasOne(() => Wishlist)
+	wishlist: Wishlist = {} as Wishlist;
+
+	@BeforeCreate
+	static async createWishlist(instance: User) {
+		await wishlistService.createWishlistForUser(instance.id);
+	}
 }

@@ -1,15 +1,20 @@
 import { z } from "zod";
 import { foodCategories } from "../constants/constants.js";
 
+enum ITEMS_SORTING {
+	EXPIRY_DATE = "expiryDate",
+}
+
 const ItemsFilter = z.object({
 	houseId: z.number(),
 	storeId: z.number().optional(),
+	sortBy: z.string().optional(),
 });
 
 const ItemAdd = z.object({
 	name: z.string(),
 	quantity: z.number(),
-	image: z.string().optional(),
+	image: z.string().optional().nullable(),
 	houseId: z.number(),
 	store: z.object({
 		id: z.number().nullable(),

@@ -20,7 +20,6 @@ const login = async (req: Request, res: Response) => {
 		}
 
 		let existingUser = null;
-		console.log(req.body);
 
 		if (username) {
 			existingUser = await UserCredential.findOne({ where: { username } });
@@ -29,9 +28,6 @@ const login = async (req: Request, res: Response) => {
 		if (email) {
 			existingUser = await UserCredential.findOne({ where: { email } });
 		}
-
-		console.log("my existing user");
-		console.log(existingUser);
 
 		if (
 			existingUser &&
@@ -50,7 +46,7 @@ const login = async (req: Request, res: Response) => {
 				email: existingUser.email,
 				username: existingUser.username,
 				token: token,
-				// more properties can be added
+				notificationToken: existingUser.notificationToken,
 			});
 		}
 
